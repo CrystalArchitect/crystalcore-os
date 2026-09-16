@@ -1,0 +1,220 @@
+{
+  "$schema_comment": "PLACEHOLDER structure only. Crystal must fill all null numeric fields and price IDs before go-live. Do not treat nulls as zero or as approved limits.",
+  "version": "0.1.0-scaffold",
+  "metering_unit": "PLACEHOLDER_unit_chosen_by_Crystal",
+  "tiers": {
+    "free": {
+      "id": "free",
+      "display_name": "Free",
+      "stripe_price_id": null,
+      "inference": {
+        "included_units_per_period": null,
+        "period": "PLACEHOLDER_day_or_month",
+        "rpm": null,
+        "tpm": null,
+        "concurrency": null,
+        "allowed_models": [],
+        "overage_policy": "hard_cap",
+        "overage_unit_price": null
+      },
+      "developer_connections": {
+        "api_keys": {
+          "max_keys": null,
+          "production_keys_allowed": false,
+          "sandbox_only": true
+        },
+        "connectors": {
+          "max_connectors": null,
+          "categories": {
+            "integrations": {
+              "enabled": true,
+              "max_count": null,
+              "allowed_connector_ids": []
+            },
+            "creation_platforms": {
+              "enabled": true,
+              "description": "Pluggable creation providers (music gen, video edit/export, image gen, design, voice, etc.). Examples of class members: Suno, CapCut — not an exhaustive allowlist; Crystal curates the catalog.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": true,
+              "production_access": false,
+              "webhooks_allowed": false,
+              "exports_allowed": false
+            }
+          }
+        },
+        "webhooks": {
+          "max_endpoints": null,
+          "allowed": false
+        },
+        "environments": {
+          "max_environments": null,
+          "production_promote_allowed": false
+        },
+        "log_retention_days": null,
+        "team_seats": null,
+        "support": "community"
+      },
+      "creation_platform_metering": {
+        "comment": "Unit prices and included amounts are PLACEHOLDER nulls — Crystal supplies after provider contracts.",
+        "included": {
+          "generations": null,
+          "render_minutes": null,
+          "exports": null,
+          "storage_gb": null,
+          "api_calls": null
+        },
+        "overage_policy": "hard_cap",
+        "unit_prices": {
+          "generation": null,
+          "render_minute": null,
+          "export": null,
+          "storage_gb_month": null,
+          "api_call": null
+        }
+      },
+      "margin_floor_percent": null,
+      "provider_spend_ceiling": {
+        "daily": null,
+        "monthly": null
+      }
+    },
+    "paid": {
+      "id": "paid",
+      "display_name": "Paid",
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inference": {
+        "included_units_per_period": null,
+        "period": "PLACEHOLDER_month",
+        "rpm": null,
+        "tpm": null,
+        "concurrency": null,
+        "allowed_models": [],
+        "overage_policy": "PLACEHOLDER_hard_cap_or_metered",
+        "overage_unit_price": null
+      },
+      "developer_connections": {
+        "api_keys": {
+          "max_keys": null,
+          "production_keys_allowed": true,
+          "sandbox_only": false
+        },
+        "connectors": {
+          "max_connectors": null,
+          "categories": {
+            "integrations": {
+              "enabled": true,
+              "max_count": null,
+              "allowed_connector_ids": []
+            },
+            "creation_platforms": {
+              "enabled": true,
+              "description": "Production access to curated creation platforms (music, video, image, design, voice, and future pluggable providers). Catalog IDs TBD by Crystal.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": false,
+              "production_access": true,
+              "webhooks_allowed": true,
+              "exports_allowed": true
+            }
+          }
+        },
+        "webhooks": {
+          "max_endpoints": null,
+          "allowed": true
+        },
+        "environments": {
+          "max_environments": null,
+          "production_promote_allowed": true
+        },
+        "log_retention_days": null,
+        "team_seats": null,
+        "support": "PLACEHOLDER_priority_or_sla"
+      },
+      "creation_platform_metering": {
+        "comment": "Meter generations, render minutes, exports, storage, API calls. Provider cost vs customer charge settled via hybrid model (see docs/API-TIERS.md). Stripe does NOT pay Suno/CapCut/etc. directly unless a documented Connect relationship exists.",
+        "included": {
+          "generations": null,
+          "render_minutes": null,
+          "exports": null,
+          "storage_gb": null,
+          "api_calls": null
+        },
+        "overage_policy": "PLACEHOLDER_hard_cap_or_metered",
+        "unit_prices": {
+          "generation": null,
+          "render_minute": null,
+          "export": null,
+          "storage_gb_month": null,
+          "api_call": null
+        }
+      },
+      "margin_floor_percent": null,
+      "provider_spend_ceiling": {
+        "daily": null,
+        "monthly": null
+      }
+    }
+  },
+  "creation_platform_catalog": {
+    "comment": "Pluggable registry — Crystal fills connector_id, display_name, capabilities, and billing_mode. Examples of the class (not hardcoded exclusives): Suno (music), CapCut (video edit/export), plus image gen, design tools, voice, etc.",
+    "connectors": [
+      {
+        "connector_id": "PLACEHOLDER_music_provider",
+        "display_name": "PLACEHOLDER (e.g. music generation class — Suno-class)",
+        "category": "creation_platforms",
+        "capabilities": ["generate", "export"],
+        "meter_units": ["generation", "export", "api_call"],
+        "billing_modes": ["platform_managed", "byok"],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_video_provider",
+        "display_name": "PLACEHOLDER (e.g. video edit/export class — CapCut-class)",
+        "category": "creation_platforms",
+        "capabilities": ["edit", "render", "export", "webhook"],
+        "meter_units": ["render_minute", "export", "storage_gb", "api_call"],
+        "billing_modes": ["platform_managed", "byok"],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_image_provider",
+        "display_name": "PLACEHOLDER (image generation class)",
+        "category": "creation_platforms",
+        "capabilities": ["generate", "export"],
+        "meter_units": ["generation", "export", "storage_gb", "api_call"],
+        "billing_modes": ["platform_managed", "byok"],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_design_provider",
+        "display_name": "PLACEHOLDER (design tools class)",
+        "category": "creation_platforms",
+        "capabilities": ["edit", "export"],
+        "meter_units": ["api_call", "export", "storage_gb"],
+        "billing_modes": ["platform_managed", "byok"],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_voice_provider",
+        "display_name": "PLACEHOLDER (voice / TTS class)",
+        "category": "creation_platforms",
+        "capabilities": ["generate", "export"],
+        "meter_units": ["generation", "api_call", "storage_gb"],
+        "billing_modes": ["platform_managed", "byok"],
+        "free_eligible": null,
+        "paid_eligible": null
+      }
+    ]
+  },
+  "settlement": {
+    "customer_billing": "stripe",
+    "stripe_pays_providers_directly": false,
+    "notes": "Stripe collects customer payments into the platform balance. Creation platforms (Suno-class, CapCut-class, etc.) and AI model providers bill the platform separately unless Crystal documents a Stripe Connect relationship with that provider. BYOK removes platform provider-credit exposure for that connector."
+  }
+}

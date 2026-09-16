@@ -34,3 +34,16 @@ npx serve .
 ```
 
 Then open `http://localhost:3000` (or the port shown).
+
+
+## API tiers scaffold (separate from marketing site)
+
+Serverless stubs under `api/` plus `config/tiers.example.json` and `docs/API-TIERS.md` scaffold Free/Paid entitlements, usage ledger, Stripe settlement stubs, BYOK, and **creation platforms** (pluggable music/video/image/design/voice connectors — Suno-class, CapCut-class, etc.).
+
+```bash
+npm install
+npm test
+npm run typecheck
+```
+
+Prices/limits are PLACEHOLDER/null — Crystal must fill before go-live. Do not merge until reviewed. Static site files above are unchanged.
