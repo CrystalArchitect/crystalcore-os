@@ -1,0 +1,29 @@
+# Dependencies / tooling
+node_modules/
+.npm/
+.pnpm-store/
+
+# Vercel
+.vercel/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Local deploy / MCP junk (never commit)
+mcp-*.json
+vercel-deploy.json
+live-full-*.json
+index.packed.html
+index.boot.html
+DEPLOY-STATUS.*
+DEPLOY_STATUS.md
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
