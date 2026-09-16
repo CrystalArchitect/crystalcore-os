@@ -32,6 +32,17 @@
  if(name === 'transmission') startTerminal();
  }
  tabs.forEach(function(t){ t.addEventListener('click', function(){ showModule(t.dataset.module); }); });
+ /* ---------- homepage hero CTAs ---------- */
+ document.querySelectorAll('[data-hero-module]').forEach(function(btn){
+   btn.addEventListener('click', function(){
+     var name = btn.getAttribute('data-hero-module');
+     if(name) showModule(name);
+     var target = modules[name];
+     if(target && target.scrollIntoView){
+       try{ target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' }); }catch(e){ target.scrollIntoView(true); }
+     }
+   });
+ });
  /* ---------- hot state carry ---------- */
  function saveSnapshot(){
  try{
