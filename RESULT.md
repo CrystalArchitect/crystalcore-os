@@ -21,14 +21,14 @@
 
 Scaffold only (no live prices, no production Stripe wiring):
 
-1. **`api/`** — Vercel/Next-compatible TypeScript stubs  
+1. **`server/`** — Vercel/Next-compatible TypeScript stubs  
    - Auth: issue / hash / revoke API keys  
    - Entitlements: **universal** single gate for **all** categories (deny-by-default for unknown capabilities)  
    - Middleware: quota gate, rate-limit stub, cost-estimate stub, Free hard-cap + circuit breaker hooks (all categories)  
    - Usage ledger: types + in-memory store with event kinds per category  
    - Stripe: Checkout + Customer Portal stubs, webhook signature-verify stub, circuit breaker  
    - BYOK / bring-your-own-app-credentials header stub  
-   - Registries under `api/connections/`:
+   - Registries under `server/connections/`:
      - `creationPlatforms.ts` — music/video/image/design/voice  
      - `socialMedia.ts` — X, Instagram, TikTok, YouTube, Meta, LinkedIn, Threads, Bluesky, Discord, Telegram, extensible  
      - `mcpServers.ts` — MCP tools/resources/prompts  
@@ -41,7 +41,7 @@ Scaffold only (no live prices, no production Stripe wiring):
 4. **`docs/API-TIERS.md`** + **`docs/PRICING-DRAFT.md`** — universal entitlement, **on-device privacy (all tiers)**, full 42-row DRAFT table, credit wallet, not-marketing-live  
 5. **`package.json` / `tsconfig.json`** — build/test/typecheck  
 6. **Unit tests** — Free exhausted MCP/API/connector denied; paid allowed; unknown capability denied by default; prior inference/creation/social coverage retained  
-7. **`vercel.json`** — `cleanUrls` + `api/**/*.ts` functions hint; static site untouched  
+7. **`vercel.json`** — `cleanUrls` + `server/**/*.ts` functions hint; static site untouched  
 
 ## Categories now covered
 
@@ -77,18 +77,18 @@ Coverage includes: Free inference/creation/social/MCP/API/connector exhausted; p
 
 ## Key files (added/updated this pass)
 
-- `api/lib/types.ts` — all categories, meter units, ledger kinds  
-- `api/entitlements/service.ts` — universal gate  
-- `api/connections/mcpServers.ts`  
-- `api/connections/apis.ts`  
-- `api/connections/connectors.ts`  
-- `api/connections/developer.ts`  
-- `api/connections/automation.ts`  
-- `api/middleware/freeTierGate.ts` / `quotaGate.ts`  
+- `server/lib/types.ts` — all categories, meter units, ledger kinds  
+- `server/entitlements/service.ts` — universal gate  
+- `server/connections/mcpServers.ts`  
+- `server/connections/apis.ts`  
+- `server/connections/connectors.ts`  
+- `server/connections/developer.ts`  
+- `server/connections/automation.ts`  
+- `server/middleware/freeTierGate.ts` / `quotaGate.ts`  
 - `config/tiers.example.json` — DRAFT 42 tiers + defaults + catalogs  
 - `docs/PRICING-DRAFT.md` — full 42-row DRAFT table + privacy + credit wallet  
 - `docs/API-TIERS.md` — points at 42-tier draft + on-device privacy  
-- `api/lib/tiers.ts` — load / lookup helpers  
+- `server/lib/tiers.ts` — load / lookup helpers  
 - `tests/entitlements.test.ts` / `tests/usageLedger.test.ts`  
 
 ## TBD (Crystal must fill — not invented)
