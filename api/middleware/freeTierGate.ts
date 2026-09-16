@@ -6,13 +6,14 @@
 import { assertCircuitClosed } from '../billing/circuitBreaker.js';
 import { authorize } from '../entitlements/service.js';
 import type { Capability, Entitlements, GateDecision } from '../lib/types.js';
+import { isFreeTierId } from '../lib/tiers.js';
 
 export function freeTierHardCapGate(
   entitlements: Entitlements,
   capability: Capability,
   opts?: Parameters<typeof authorize>[2],
 ): GateDecision {
-  if (entitlements.tierId !== 'free') {
+  if (!isFreeTierId(entitlements.tierId)) {
     return authorize(entitlements, capability, opts);
   }
 

@@ -23,6 +23,7 @@ import type {
   SocialMeterUnit,
   TierId,
 } from '../lib/types.js';
+import { isFreeTierId } from '../lib/tiers.js';
 
 export function buildEntitlements(input: {
   tierId: TierId;
@@ -53,7 +54,7 @@ export function buildEntitlements(input: {
   allowedAutomationConnectorIds?: string[];
   overagePolicy?: 'hard_cap' | 'metered';
 }): Entitlements {
-  const isFree = input.tierId === 'free';
+  const isFree = isFreeTierId(input.tierId);
   const overage = input.overagePolicy ?? 'hard_cap';
 
   return {

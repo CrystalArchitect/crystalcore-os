@@ -1,7 +1,8 @@
 # CrystalCore.OS — API tiers contract (scaffold)
 
-**Status:** Scaffold / internal contract. Not production billing.  
-**Related plan concepts:** Free vs Paid entitlements, central usage ledger, hybrid Stripe settlement, BYOK, universal entitlement across all connectors/MCPs/APIs/dev tooling.  
+**Status:** Scaffold / internal contract. **DRAFT 42-tier pricing ladder** — not production billing, **not marketing-live**.  
+**Related plan concepts:** 42-tier DRAFT ladder (`tier_01`…`tier_42`), shared billable credits, central usage ledger, hybrid Stripe settlement, BYOK, universal entitlement, **on-device privacy for all tiers**.  
+**Pricing detail:** see [`docs/PRICING-DRAFT.md`](./PRICING-DRAFT.md) and `config/tiers.example.json`.  
 **Hero PR (unrelated):** do not bundle with homepage hero work.
 
 ## What this document is
@@ -24,22 +25,26 @@ There are **no bypass paths** for:
 
 **Open-ended catalog:** unknown future platforms register as **connectors** (or under a registered category such as `mcp_servers` / `apis` / `automation`) with a type + meter units. The category list is intentionally extensible; commercial numbers stay `null`/`PLACEHOLDER` until Crystal fills them.
 
-## Tiers (structure)
+## On-device privacy (all 42 tiers)
 
-| | Free | Paid |
+**Product rule:** customer data/workspace stays **on their device by default**. Cloud is used only when they **opt into** a connector or inference call. This applies to **every** tier from Free (`tier_01`) through `tier_42`.
+
+## Tiers (DRAFT 42-rung ladder)
+
+Canonical ids: **`tier_01` … `tier_42`**. Legacy aliases `free` → `tier_01`, `paid` → `tier_02` remain for scaffold code.
+
+| | Free (`tier_01`) | Paid (`tier_02`…`tier_42`) |
 |---|------|------|
+| Price (AUD/mo) | **0 (DRAFT)** | Ascending nice numbers — see `PRICING-DRAFT.md` (**DRAFT**) |
+| Credits | 500 included; **hard_cap**; no overages | `max(1000, price×200)` included (**DRAFT**); overage at cost + **30%** margin floor (**DRAFT**) |
+| Seats | 1 | `1 + floor((index−1)/3)` capped at 500 (**DRAFT**) |
+| Environment | **Sandbox only**; production false | Production allowed |
 | Auth | API key (sandbox/dev) | API keys (incl. production) |
-| Inference | Hard-capped allowance; no overages | Higher allowance; overage policy TBD by Crystal |
-| **Developer** | Limited keys/envs; no prod secrets | More keys, webhooks, environments, SDK, seats, retention |
-| **Creation platforms** | Sandbox/dev; **hard caps** | **Production**; higher quotas; webhooks/exports |
-| **Social media** | Sandbox/limited; **hard caps**; no uncapped auto-posting | More accounts/platforms; production webhooks; seats |
-| **MCP servers** | Sandbox MCP tool/resource/prompt caps | Production MCP; higher quotas |
-| **APIs** | Sandbox first/third-party call caps | Production HTTP/GraphQL/gRPC quotas |
-| **Connectors** | Sandbox generic integrations | Production CRM/email/calendar/storage/payments/analytics/… |
-| **Automation** | Hard-capped schedules/agents; no retries (scaffold) | Production agents/workflows; retries allowed |
-| Support | Community | Priority / SLA TBD |
+| Inference / connectors / MCP / APIs / creation / social / automation / developer | Hard-capped; universal entitlement | Higher included credits; universal entitlement; metered overage (**DRAFT**) |
+| Stripe `price_id` | `null` PLACEHOLDER | `null` PLACEHOLDER — do not invent |
+| Privacy | On-device by default | On-device by default |
 
-Exact counts, catalogs, and prices: **Crystal fills** before marketing or charging.
+Full 42-row table, credit wallet, and “not marketing-live” notice: **[`docs/PRICING-DRAFT.md`](./PRICING-DRAFT.md)**. Config: `config/tiers.example.json` (`defaults` + per-tier overrides + `tier_order`).
 
 ## Categories (pluggable registries)
 
@@ -125,7 +130,7 @@ Scheduled jobs, agents, and workflows **cannot** bypass entitlements. Retries ar
 | `api/connections/connectors.ts` | Generic connectors registry + run path |
 | `api/connections/developer.ts` | Developer tooling registry + run path |
 | `api/connections/automation.ts` | Automation registry + run path |
-| `config/tiers.example.json` | Free/Paid + all categories PLACEHOLDERs + open-ended catalogs |
+| `config/tiers.example.json` | **DRAFT** 42 tiers (`tier_01`…`tier_42`) + defaults/templates + open-ended catalogs |
 | `.env.example` | Env **names** only |
 
 Static site (`index.html`, `styles.css`, `app.js`) remains unchanged and deployable.
@@ -134,7 +139,7 @@ Static site (`index.html`, `styles.css`, `app.js`) remains unchanged and deploya
 
 - [ ] Answer plan §9 decisions (tiers, metering unit, settlement, tax, BYOK).
 - [ ] Provider / connector / MCP / API **contracts** + real **cost tables**.
-- [ ] Fill `tiers.example.json` → private config (no invented marketing numbers in-repo).
+- [ ] Confirm **DRAFT** 42-tier ladder in `tiers.example.json` / `PRICING-DRAFT.md` → private config (no invented live Stripe Price IDs).
 - [ ] Create Stripe Products/Prices; set `STRIPE_PRICE_*`, webhook secret.
 - [ ] Provision `DATABASE_URL` and replace in-memory ledger.
 - [ ] Confirm auto-pay / invoice options per provider category.
@@ -146,4 +151,4 @@ Static site (`index.html`, `styles.css`, `app.js`) remains unchanged and deploya
 
 ## What is explicitly TBD
 
-All dollar amounts, included units, RPM/TPM, connector counts, creation/social/MCP/API/automation quotas, margin %, Stripe Price IDs, tax/GST treatment, legal entity/currency details, and which specific catalog IDs are Free-eligible.
+DRAFT AUD ladder / credits / seats / 30% margin floor are provisional. Still TBD: final marketing numbers, RPM/TPM, per-category meter splits, Stripe Price IDs (keep null until created), tax/GST, legal entity details, and Free-eligible catalog IDs.

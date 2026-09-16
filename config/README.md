@@ -1,36 +1,42 @@
-# Tier config (example only)
+# Tier config (example only) — DRAFT 42-tier ladder
 
-`tiers.example.json` is a **scaffold**. Every numeric limit, price ID, allowance, RPM/TPM, connector count, quota, and margin field is **`null` or `PLACEHOLDER`** on purpose.
+`tiers.example.json` holds a **DRAFT** 42-tier pricing scaffold (`tier_01`…`tier_42`).  
+**Not marketing-live.** Stripe Price IDs stay **`null`** until Crystal creates Products/Prices.
 
-## Universal entitlement
+See also: [`docs/PRICING-DRAFT.md`](../docs/PRICING-DRAFT.md).
 
-Any capability that spends money, burns quota, or grants access must be entitled via the central service. Categories covered:
+## Structure
 
-1. **Inference**
-2. **Creation platforms**
-3. **Social media**
-4. **MCP servers** — tools / resources / prompts
-5. **APIs** — first-party + third-party HTTP/GraphQL/gRPC
-6. **Connectors** — CRM, email, calendar, storage, payments, analytics, other (open-ended)
-7. **Developer** — API keys, environments, webhooks, SDK, team seats, log retention, rate limits
-8. **Automation** — scheduled jobs, agents/workflows, retries
+- `draft_pricing` — status DRAFT, AUD, credit basis, margin floor notes
+- `defaults` — on-device privacy, credit wallet, `free_template` / `paid_template` metering placeholders
+- `tier_order` — canonical ordered ids
+- `tiers` — per-tier overrides: price, included_credits, seats, sandbox/production, overage, margin; plus legacy aliases `free` / `paid`
+- Catalogs — creation, social, MCP, APIs, connectors, developer, automation (open-ended)
 
-**Open-ended:** unknown future platforms register as connectors with a **type + meter units**. Deny-by-default for unregistered capabilities.
+## Product rules (encoded in comments)
 
-## What Crystal must fill before go-live
+1. **On-device privacy** for ALL 42 tiers.
+2. **Universal entitlement** across all categories.
+3. Shared **billable credits** wallet (~1 credit ≈ AUD $0.01 cost basis — DRAFT).
+4. Free = hard caps / sandbox; Paid = included credits + overage at cost + margin_floor 30% (DRAFT).
+5. Stripe bills customer; does **not** pay providers directly. BYOK preferred.
+6. Marked **DRAFT** everywhere prices appear.
 
-1. **Inference:** included units, period, RPM/TPM/concurrency, allowed models, overage policy.
-2. **Developer:** max keys, environments, webhooks, SDK, seats, retention, rate limits.
-3. **Creation platforms** — curated catalog; Free sandbox hard caps; Paid production quotas.
-4. **Social media** — extensible catalog; Free no uncapped auto-posting; Paid production webhooks/seats.
-5. **MCP / APIs / Connectors / Automation** — included meters and unit prices from real contracts.
-6. **Stripe Price IDs** after Products/Prices exist (test then live).
-7. **Margin floor** and **provider spend ceilings**.
+## Universal entitlement categories
+
+1. Inference  
+2. Creation platforms  
+3. Social media  
+4. MCP servers  
+5. APIs  
+6. Connectors  
+7. Developer  
+8. Automation  
 
 ## Settlement reminder
 
 - Stripe is the **customer** billing layer.
-- Stripe does **not** automatically pay OpenAI, Anthropic, Suno, CapCut, Meta, TikTok, X, MCP hosts, third-party APIs, or other connector vendors unless those providers participate in a **documented** Stripe Connect (or similar) arrangement — none is assumed here.
-- Hybrid: platform-managed keys/OAuth apps and/or **BYOK** / bring-your-own-app-credentials.
+- Stripe does **not** automatically pay providers unless a **documented** Stripe Connect arrangement exists — none assumed.
+- Hybrid: platform-managed keys/OAuth apps and/or **BYOK**.
 
-Copy to a private config / secrets store; do not commit filled production values into this repo.
+Copy filled production values to a private store; do not commit live secrets or invented Stripe Price IDs.

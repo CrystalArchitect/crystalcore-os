@@ -1,4 +1,4 @@
-# RESULT — API tiers + Stripe settlement scaffold (universal entitlements)
+# RESULT — API tiers + Stripe settlement scaffold (universal entitlements + DRAFT 42-tier ladder)
 
 **PR URL:** https://github.com/CrystalArchitect/crystalcore-os/pull/2  
 **Branch:** `feat/api-tiers-stripe-scaffold`  
@@ -7,6 +7,15 @@
 
 **Local path:** `/workspace/crystalcore-api-tiers`  
 **RESULT path:** `/workspace/crystalcore-api-tiers/RESULT.md`
+
+## DRAFT 42-tier ladder (this pass)
+
+- Exactly **42** tiers: `tier_01` (Free) … `tier_42` (AUD 4999 DRAFT)
+- Free: 500 credits, 1 seat, sandbox_only, hard_cap, margin N/A
+- Paid: included credits = max(1000, price×200); seats = 1+floor((i-1)/3) cap 500; margin_floor_percent **30** DRAFT; overage metered
+- On-device privacy + universal entitlement + shared credits wallet encoded in docs/config comments
+- All `stripe_price_id` = **null** (PLACEHOLDER)
+- **Not merged.** Hero PR not touched.
 
 ## What shipped
 
@@ -27,9 +36,9 @@ Scaffold only (no live prices, no production Stripe wiring):
      - `connectors.ts` — CRM, email, calendar, storage, payments, analytics, open-ended `other`  
      - `developer.ts` — API keys, environments, webhooks, SDK, seats, retention, rate limits  
      - `automation.ts` — scheduled jobs, agents/workflows, retries  
-2. **`config/tiers.example.json`** + **`config/README.md`** — Free/Paid with **null/PLACEHOLDER** for all commercial numbers; categories listed below; open-ended catalog policy documented  
+2. **`config/tiers.example.json`** + **`config/README.md`** — **DRAFT 42-tier** ladder (`tier_01`…`tier_42`) with defaults/templates, AUD prices, credits, seats; Stripe Price IDs remain **null**; open-ended catalogs retained  
 3. **`.env.example`** — names only  
-4. **`docs/API-TIERS.md`** — explicit **“Everything is entitled”** section + Free vs Paid + hybrid settlement + go-live checklist  
+4. **`docs/API-TIERS.md`** + **`docs/PRICING-DRAFT.md`** — universal entitlement, **on-device privacy (all tiers)**, full 42-row DRAFT table, credit wallet, not-marketing-live  
 5. **`package.json` / `tsconfig.json`** — build/test/typecheck  
 6. **Unit tests** — Free exhausted MCP/API/connector denied; paid allowed; unknown capability denied by default; prior inference/creation/social coverage retained  
 7. **`vercel.json`** — `cleanUrls` + `api/**/*.ts` functions hint; static site untouched  
@@ -61,10 +70,10 @@ Scaffold only (no live prices, no production Stripe wiring):
 npm install && npm test && npm run typecheck
 ```
 
-- **30** tests passing (6 suites)
+- **32** tests passing (7 suites)
 - Typecheck clean
 
-Coverage includes: Free inference/creation/social/MCP/API/connector exhausted; paid allow paths; Free automation retry deny; Paid automation allow; unknown capability deny-by-default; ledger writes for creation, social, MCP, API, connector, automation; Stripe signature stub; circuit breaker.
+Coverage includes: Free inference/creation/social/MCP/API/connector exhausted; paid allow paths; Free automation retry deny; Paid automation allow; unknown capability deny-by-default; **42 tiers exist / Free hard_cap sandbox / lookup by id**; ledger writes; Stripe signature stub; circuit breaker.
 
 ## Key files (added/updated this pass)
 
@@ -76,8 +85,10 @@ Coverage includes: Free inference/creation/social/MCP/API/connector exhausted; p
 - `api/connections/developer.ts`  
 - `api/connections/automation.ts`  
 - `api/middleware/freeTierGate.ts` / `quotaGate.ts`  
-- `config/tiers.example.json` — Free/Paid + catalogs for every category  
-- `docs/API-TIERS.md` — “Everything is entitled”  
+- `config/tiers.example.json` — DRAFT 42 tiers + defaults + catalogs  
+- `docs/PRICING-DRAFT.md` — full 42-row DRAFT table + privacy + credit wallet  
+- `docs/API-TIERS.md` — points at 42-tier draft + on-device privacy  
+- `api/lib/tiers.ts` — load / lookup helpers  
 - `tests/entitlements.test.ts` / `tests/usageLedger.test.ts`  
 
 ## TBD (Crystal must fill — not invented)

@@ -7,7 +7,52 @@
  * SDKs, CLIs, or third-party connectors.
  */
 
-export type TierId = 'free' | 'paid';
+/** Canonical ids: tier_01…tier_42. Legacy aliases `free`/`paid` kept for scaffold tests. */
+export type TierId =
+  | 'free'
+  | 'paid'
+  | 'tier_01'
+  | 'tier_02'
+  | 'tier_03'
+  | 'tier_04'
+  | 'tier_05'
+  | 'tier_06'
+  | 'tier_07'
+  | 'tier_08'
+  | 'tier_09'
+  | 'tier_10'
+  | 'tier_11'
+  | 'tier_12'
+  | 'tier_13'
+  | 'tier_14'
+  | 'tier_15'
+  | 'tier_16'
+  | 'tier_17'
+  | 'tier_18'
+  | 'tier_19'
+  | 'tier_20'
+  | 'tier_21'
+  | 'tier_22'
+  | 'tier_23'
+  | 'tier_24'
+  | 'tier_25'
+  | 'tier_26'
+  | 'tier_27'
+  | 'tier_28'
+  | 'tier_29'
+  | 'tier_30'
+  | 'tier_31'
+  | 'tier_32'
+  | 'tier_33'
+  | 'tier_34'
+  | 'tier_35'
+  | 'tier_36'
+  | 'tier_37'
+  | 'tier_38'
+  | 'tier_39'
+  | 'tier_40'
+  | 'tier_41'
+  | 'tier_42';
 
 export type Capability =
   | 'inference'
