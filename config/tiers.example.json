@@ -1,0 +1,2285 @@
+{
+  "$schema_comment": "DRAFT 42-tier pricing ladder scaffold. Crystal must confirm before marketing-live. Do not invent Stripe Price IDs. Universal entitlement: every category gates spend/quota/access through the central entitlement service. On-device privacy applies to ALL 42 tiers. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. NOTE: AUD ladder from brief had 42 paid prices for a 41-slot paid band (tiers 2\u201342); 1299 AUD was omitted to keep exactly 42 tiers \u2014 Crystal can restore/adjust.",
+  "version": "0.2.0-draft-42-tiers",
+  "metering_unit": "billable_credit",
+  "draft_pricing": {
+    "status": "DRAFT",
+    "currency": "AUD",
+    "billing_period": "month",
+    "tier_count": 42,
+    "credit_basis_aud": 0.01,
+    "credit_basis_note": "DRAFT: ~1 billable credit \u2248 AUD $0.01 platform cost basis \u2014 not locked.",
+    "margin_floor_percent_paid": 30,
+    "margin_floor_note": "DRAFT floor on paid overages (cost + margin). Free has no overages (hard_cap).",
+    "stripe_price_ids": "PLACEHOLDER \u2014 all stripe_price_id fields are null until Crystal creates Products/Prices.",
+    "not_marketing_live": true,
+    "privacy_rule": "On-device privacy: customer data/workspace stays on their device by default; cloud only when they opt into a connector/inference call. Applies to ALL 42 tiers.",
+    "settlement_rule": "Stripe bills the customer into the platform balance. Stripe does NOT pay providers directly. BYOK preferred.",
+    "aud_ladder_note": "DRAFT nice-number AUD monthly ladder. Brief listed 42 paid amounts for tiers 2\u201342 (41 slots); omitted 1299 AUD (kept 139) to keep exactly 42 tiers. Not marketing-live.",
+    "formulas": {
+      "included_credits_paid": "max(1000, price_aud_monthly * 200) \u2014 DRAFT",
+      "included_credits_free": 500,
+      "seats": "1 + floor((tier_index - 1) / 3), capped at 500 \u2014 DRAFT"
+    }
+  },
+  "defaults": {
+    "privacy": {
+      "on_device_by_default": true,
+      "cloud_only_on_opt_in_connector_or_inference": true,
+      "applies_to_all_tiers": true,
+      "comment": "Product rule for ALL 42 tiers \u2014 DRAFT encoding in config."
+    },
+    "universal_entitlement": true,
+    "credit_wallet": {
+      "unit": "billable_credit",
+      "approx_aud_cost_basis": 0.01,
+      "shared_across_categories": true,
+      "comment": "Shared billable credits wallet across inference/creation/social/mcp/apis/connectors/developer/automation. DRAFT."
+    },
+    "free_template": {
+      "inference": {
+        "included_units_per_period": null,
+        "period": "PLACEHOLDER_day_or_month",
+        "rpm": null,
+        "tpm": null,
+        "concurrency": null,
+        "allowed_models": [],
+        "overage_policy": "hard_cap",
+        "overage_unit_price": null
+      },
+      "developer_connections": {
+        "api_keys": {
+          "max_keys": null,
+          "production_keys_allowed": false,
+          "sandbox_only": true
+        },
+        "connectors": {
+          "max_connectors": null,
+          "categories": {
+            "integrations": {
+              "enabled": true,
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "description": "Legacy alias slot \u2014 prefer category `connectors` for generic integrations. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements."
+            },
+            "creation_platforms": {
+              "enabled": true,
+              "description": "Pluggable creation providers (music gen, video edit/export, image gen, design, voice, etc.). Examples of class members: Suno, CapCut \u2014 not an exhaustive allowlist; Crystal curates the catalog. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": true,
+              "production_access": false,
+              "webhooks_allowed": false,
+              "exports_allowed": false
+            },
+            "social_media": {
+              "enabled": true,
+              "description": "Pluggable social media connectors (X/Twitter, Instagram, TikTok, YouTube, Facebook/Meta, LinkedIn, Threads, Bluesky, Discord, Telegram, and future platforms). Catalog is extensible \u2014 not hardcoded to a fixed vendor list. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": true,
+              "production_access": false,
+              "webhooks_allowed": false,
+              "auto_posting_allowed": false,
+              "max_linked_accounts": null,
+              "team_seats": null,
+              "log_retention_days": null
+            },
+            "mcp_servers": {
+              "enabled": true,
+              "description": "MCP tools/resources/prompts invocations. Every MCP call is entitled. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": true,
+              "production_access": false,
+              "webhooks_allowed": false
+            },
+            "apis": {
+              "enabled": true,
+              "description": "First-party + third-party HTTP/GraphQL/gRPC calls. No bypass of entitlements. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": true,
+              "production_access": false,
+              "webhooks_allowed": false
+            },
+            "connectors": {
+              "enabled": true,
+              "description": "Generic integration connectors (CRM, email, calendar, storage, payments, analytics, etc.). Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": true,
+              "production_access": false,
+              "webhooks_allowed": false,
+              "connector_types": [
+                "crm",
+                "email",
+                "calendar",
+                "storage",
+                "payments",
+                "analytics",
+                "other"
+              ]
+            },
+            "developer": {
+              "enabled": true,
+              "description": "API keys, environments, webhooks, SDK usage, team seats, log retention, rate limits. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+              "max_api_keys": null,
+              "max_environments": null,
+              "max_webhook_endpoints": null,
+              "sdk_calls_included": null,
+              "team_seats": null,
+              "log_retention_days": null,
+              "rpm": null,
+              "production_keys_allowed": false,
+              "sandbox_only": true,
+              "webhooks_allowed": false,
+              "production_promote_allowed": false
+            },
+            "automation": {
+              "enabled": true,
+              "description": "Scheduled jobs, agents/workflows, retries. All automation spend/quota is entitled. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": true,
+              "production_access": false,
+              "webhooks_allowed": false,
+              "max_scheduled_jobs": null,
+              "max_concurrent_agents": null,
+              "retries_allowed": false
+            }
+          }
+        },
+        "webhooks": {
+          "max_endpoints": null,
+          "allowed": false
+        },
+        "environments": {
+          "max_environments": null,
+          "production_promote_allowed": false
+        },
+        "log_retention_days": null,
+        "team_seats": null,
+        "support": "community"
+      },
+      "creation_platform_metering": {
+        "comment": "Unit prices and included amounts are PLACEHOLDER nulls \u2014 Crystal supplies after provider contracts.",
+        "included": {
+          "generations": null,
+          "render_minutes": null,
+          "exports": null,
+          "storage_gb": null,
+          "api_calls": null
+        },
+        "overage_policy": "hard_cap",
+        "unit_prices": {
+          "generation": null,
+          "render_minute": null,
+          "export": null,
+          "storage_gb_month": null,
+          "api_call": null
+        }
+      },
+      "margin_floor_percent": null,
+      "provider_spend_ceiling": {
+        "daily": null,
+        "monthly": null
+      },
+      "social_media_metering": {
+        "comment": "Structure only \u2014 all amounts/prices null. Free: hard caps; no uncapped auto-posting.",
+        "included": {
+          "oauth_connects": null,
+          "publishes": null,
+          "schedules": null,
+          "media_uploads": null,
+          "analytics_pulls": null,
+          "inbox_actions": null,
+          "webhook_deliveries": null,
+          "linked_accounts": null,
+          "api_calls": null
+        },
+        "overage_policy": "hard_cap",
+        "unit_prices": {
+          "oauth_connect": null,
+          "publish": null,
+          "schedule": null,
+          "media_upload": null,
+          "analytics_pull": null,
+          "inbox_action": null,
+          "webhook_delivery": null,
+          "linked_account": null,
+          "api_call": null
+        }
+      },
+      "mcp_servers_metering": {
+        "comment": "MCP tool/resource/prompt invocations \u2014 all null PLACEHOLDERs.",
+        "included": {
+          "tool_calls": null,
+          "resource_reads": null,
+          "prompt_gets": null,
+          "sessions": null
+        },
+        "overage_policy": "hard_cap",
+        "unit_prices": {
+          "tool_call": null,
+          "resource_read": null,
+          "prompt_get": null,
+          "session": null
+        }
+      },
+      "apis_metering": {
+        "comment": "First-party + third-party API calls \u2014 null PLACEHOLDERs.",
+        "included": {
+          "http_calls": null,
+          "graphql_calls": null,
+          "grpc_calls": null,
+          "requests": null
+        },
+        "overage_policy": "hard_cap",
+        "unit_prices": {
+          "http_call": null,
+          "graphql_call": null,
+          "grpc_call": null,
+          "request": null
+        }
+      },
+      "connectors_metering": {
+        "comment": "Generic connectors (CRM/email/calendar/storage/payments/analytics/\u2026). Open-ended registry.",
+        "included": {
+          "invokes": null,
+          "syncs": null,
+          "webhook_deliveries": null,
+          "api_calls": null
+        },
+        "overage_policy": "hard_cap",
+        "unit_prices": {
+          "invoke": null,
+          "sync": null,
+          "webhook_delivery": null,
+          "api_call": null
+        }
+      },
+      "developer_metering": {
+        "comment": "Developer tooling meters \u2014 keys, envs, webhooks, SDK, seats, retention, rate limits.",
+        "included": {
+          "api_keys": null,
+          "environments": null,
+          "webhook_endpoints": null,
+          "sdk_calls": null,
+          "team_seats": null,
+          "log_retention_days": null,
+          "rate_limit_bursts": null
+        },
+        "overage_policy": "hard_cap",
+        "unit_prices": {
+          "api_key": null,
+          "environment": null,
+          "webhook_endpoint": null,
+          "sdk_call": null,
+          "team_seat": null,
+          "log_retention_day": null,
+          "rate_limit_burst": null
+        }
+      },
+      "automation_metering": {
+        "comment": "Scheduled jobs, agents/workflows, retries \u2014 Free hard caps; no uncapped agent spend.",
+        "included": {
+          "scheduled_runs": null,
+          "agent_runs": null,
+          "workflow_runs": null,
+          "retries": null
+        },
+        "overage_policy": "hard_cap",
+        "unit_prices": {
+          "scheduled_run": null,
+          "agent_run": null,
+          "workflow_run": null,
+          "retry": null
+        }
+      }
+    },
+    "paid_template": {
+      "inference": {
+        "included_units_per_period": null,
+        "period": "PLACEHOLDER_month",
+        "rpm": null,
+        "tpm": null,
+        "concurrency": null,
+        "allowed_models": [],
+        "overage_policy": "metered",
+        "overage_unit_price": null
+      },
+      "developer_connections": {
+        "api_keys": {
+          "max_keys": null,
+          "production_keys_allowed": true,
+          "sandbox_only": false
+        },
+        "connectors": {
+          "max_connectors": null,
+          "categories": {
+            "integrations": {
+              "enabled": true,
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "description": "Legacy alias slot \u2014 prefer category `connectors`. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements."
+            },
+            "creation_platforms": {
+              "enabled": true,
+              "description": "Production access to curated creation platforms (music, video, image, design, voice, and future pluggable providers). Catalog IDs TBD by Crystal. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": false,
+              "production_access": true,
+              "webhooks_allowed": true,
+              "exports_allowed": true
+            },
+            "social_media": {
+              "enabled": true,
+              "description": "Production social media support: more platforms/accounts, higher post/API quotas, production webhooks, longer retention, team seats. Limits PLACEHOLDER \u2014 Crystal fills. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": false,
+              "production_access": true,
+              "webhooks_allowed": true,
+              "auto_posting_allowed": true,
+              "max_linked_accounts": null,
+              "team_seats": null,
+              "log_retention_days": null
+            },
+            "mcp_servers": {
+              "enabled": true,
+              "description": "MCP tools/resources/prompts \u2014 production allowed; quotas PLACEHOLDER. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": false,
+              "production_access": true,
+              "webhooks_allowed": true
+            },
+            "apis": {
+              "enabled": true,
+              "description": "First-party + third-party HTTP/GraphQL/gRPC \u2014 production; quotas PLACEHOLDER. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": false,
+              "production_access": true,
+              "webhooks_allowed": true
+            },
+            "connectors": {
+              "enabled": true,
+              "description": "Generic integration connectors (CRM, email, calendar, storage, payments, analytics, \u2026). Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": false,
+              "production_access": true,
+              "webhooks_allowed": true,
+              "connector_types": [
+                "crm",
+                "email",
+                "calendar",
+                "storage",
+                "payments",
+                "analytics",
+                "other"
+              ]
+            },
+            "developer": {
+              "enabled": true,
+              "description": "API keys, environments, webhooks, SDK usage, team seats, log retention, rate limits. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+              "max_api_keys": null,
+              "max_environments": null,
+              "max_webhook_endpoints": null,
+              "sdk_calls_included": null,
+              "team_seats": null,
+              "log_retention_days": null,
+              "rpm": null,
+              "production_keys_allowed": true,
+              "sandbox_only": false,
+              "webhooks_allowed": true,
+              "production_promote_allowed": true
+            },
+            "automation": {
+              "enabled": true,
+              "description": "Scheduled jobs, agents/workflows, retries \u2014 production; limits PLACEHOLDER. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": false,
+              "production_access": true,
+              "webhooks_allowed": true,
+              "max_scheduled_jobs": null,
+              "max_concurrent_agents": null,
+              "retries_allowed": true
+            }
+          }
+        },
+        "webhooks": {
+          "max_endpoints": null,
+          "allowed": true
+        },
+        "environments": {
+          "max_environments": null,
+          "production_promote_allowed": true
+        },
+        "log_retention_days": null,
+        "team_seats": null,
+        "support": "PLACEHOLDER_priority_or_sla"
+      },
+      "creation_platform_metering": {
+        "comment": "Meter generations, render minutes, exports, storage, API calls. Provider cost vs customer charge settled via hybrid model (see docs/API-TIERS.md). Stripe does NOT pay Suno/CapCut/etc. directly unless a documented Connect relationship exists. DRAFT: overage from shared billable credits wallet at cost + margin_floor_percent 30. Stripe does NOT pay providers directly. BYOK preferred.",
+        "included": {
+          "generations": null,
+          "render_minutes": null,
+          "exports": null,
+          "storage_gb": null,
+          "api_calls": null
+        },
+        "overage_policy": "metered",
+        "unit_prices": {
+          "generation": null,
+          "render_minute": null,
+          "export": null,
+          "storage_gb_month": null,
+          "api_call": null
+        }
+      },
+      "margin_floor_percent": 30,
+      "provider_spend_ceiling": {
+        "daily": null,
+        "monthly": null
+      },
+      "social_media_metering": {
+        "comment": "Meter OAuth connects, publishes, schedules, media uploads, analytics, inbox, webhooks, linked accounts. Stripe does NOT pay Meta/TikTok/etc. directly unless documented Connect exists. DRAFT: overage from shared billable credits wallet at cost + margin_floor_percent 30. Stripe does NOT pay providers directly. BYOK preferred.",
+        "included": {
+          "oauth_connects": null,
+          "publishes": null,
+          "schedules": null,
+          "media_uploads": null,
+          "analytics_pulls": null,
+          "inbox_actions": null,
+          "webhook_deliveries": null,
+          "linked_accounts": null,
+          "api_calls": null
+        },
+        "overage_policy": "metered",
+        "unit_prices": {
+          "oauth_connect": null,
+          "publish": null,
+          "schedule": null,
+          "media_upload": null,
+          "analytics_pull": null,
+          "inbox_action": null,
+          "webhook_delivery": null,
+          "linked_account": null,
+          "api_call": null
+        }
+      },
+      "mcp_servers_metering": {
+        "comment": "MCP meters \u2014 production quotas PLACEHOLDER. Stripe does not pay MCP host vendors directly. DRAFT: overage from shared billable credits wallet at cost + margin_floor_percent 30. Stripe does NOT pay providers directly. BYOK preferred.",
+        "included": {
+          "tool_calls": null,
+          "resource_reads": null,
+          "prompt_gets": null,
+          "sessions": null
+        },
+        "overage_policy": "metered",
+        "unit_prices": {
+          "tool_call": null,
+          "resource_read": null,
+          "prompt_get": null,
+          "session": null
+        }
+      },
+      "apis_metering": {
+        "comment": "API call meters \u2014 PLACEHOLDER. Stripe does not pay third-party API vendors directly. DRAFT: overage from shared billable credits wallet at cost + margin_floor_percent 30. Stripe does NOT pay providers directly. BYOK preferred.",
+        "included": {
+          "http_calls": null,
+          "graphql_calls": null,
+          "grpc_calls": null,
+          "requests": null
+        },
+        "overage_policy": "metered",
+        "unit_prices": {
+          "http_call": null,
+          "graphql_call": null,
+          "grpc_call": null,
+          "request": null
+        }
+      },
+      "connectors_metering": {
+        "comment": "Generic connector meters. Open-ended: new platforms register with type + meter units. DRAFT: overage from shared billable credits wallet at cost + margin_floor_percent 30. Stripe does NOT pay providers directly. BYOK preferred.",
+        "included": {
+          "invokes": null,
+          "syncs": null,
+          "webhook_deliveries": null,
+          "api_calls": null
+        },
+        "overage_policy": "metered",
+        "unit_prices": {
+          "invoke": null,
+          "sync": null,
+          "webhook_delivery": null,
+          "api_call": null
+        }
+      },
+      "developer_metering": {
+        "comment": "Developer tooling \u2014 higher limits PLACEHOLDER. DRAFT: overage from shared billable credits wallet at cost + margin_floor_percent 30. Stripe does NOT pay providers directly. BYOK preferred.",
+        "included": {
+          "api_keys": null,
+          "environments": null,
+          "webhook_endpoints": null,
+          "sdk_calls": null,
+          "team_seats": null,
+          "log_retention_days": null,
+          "rate_limit_bursts": null
+        },
+        "overage_policy": "metered",
+        "unit_prices": {
+          "api_key": null,
+          "environment": null,
+          "webhook_endpoint": null,
+          "sdk_call": null,
+          "team_seat": null,
+          "log_retention_day": null,
+          "rate_limit_burst": null
+        }
+      },
+      "automation_metering": {
+        "comment": "Automation meters \u2014 PLACEHOLDER. Agents/workflows cannot bypass entitlements. DRAFT: overage from shared billable credits wallet at cost + margin_floor_percent 30. Stripe does NOT pay providers directly. BYOK preferred.",
+        "included": {
+          "scheduled_runs": null,
+          "agent_runs": null,
+          "workflow_runs": null,
+          "retries": null
+        },
+        "overage_policy": "metered",
+        "unit_prices": {
+          "scheduled_run": null,
+          "agent_run": null,
+          "workflow_run": null,
+          "retry": null
+        }
+      }
+    },
+    "metering_categories": [
+      "inference",
+      "creation_platforms",
+      "social_media",
+      "mcp_servers",
+      "apis",
+      "connectors",
+      "developer",
+      "automation"
+    ]
+  },
+  "tier_order": [
+    "tier_01",
+    "tier_02",
+    "tier_03",
+    "tier_04",
+    "tier_05",
+    "tier_06",
+    "tier_07",
+    "tier_08",
+    "tier_09",
+    "tier_10",
+    "tier_11",
+    "tier_12",
+    "tier_13",
+    "tier_14",
+    "tier_15",
+    "tier_16",
+    "tier_17",
+    "tier_18",
+    "tier_19",
+    "tier_20",
+    "tier_21",
+    "tier_22",
+    "tier_23",
+    "tier_24",
+    "tier_25",
+    "tier_26",
+    "tier_27",
+    "tier_28",
+    "tier_29",
+    "tier_30",
+    "tier_31",
+    "tier_32",
+    "tier_33",
+    "tier_34",
+    "tier_35",
+    "tier_36",
+    "tier_37",
+    "tier_38",
+    "tier_39",
+    "tier_40",
+    "tier_41",
+    "tier_42"
+  ],
+  "tiers": {
+    "tier_01": {
+      "id": "tier_01",
+      "display_name": "Free",
+      "subtitle": "Sandbox \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 0,
+      "included_credits": 500,
+      "seats": 1,
+      "sandbox_only": true,
+      "production": false,
+      "overage_policy": "hard_cap",
+      "margin_floor_percent": null,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "free_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_02": {
+      "id": "tier_02",
+      "display_name": "T02",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 5,
+      "included_credits": 1000,
+      "seats": 1,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_03": {
+      "id": "tier_03",
+      "display_name": "T03",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 9,
+      "included_credits": 1800,
+      "seats": 1,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_04": {
+      "id": "tier_04",
+      "display_name": "T04",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 12,
+      "included_credits": 2400,
+      "seats": 2,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_05": {
+      "id": "tier_05",
+      "display_name": "T05",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 15,
+      "included_credits": 3000,
+      "seats": 2,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_06": {
+      "id": "tier_06",
+      "display_name": "T06",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 19,
+      "included_credits": 3800,
+      "seats": 2,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_07": {
+      "id": "tier_07",
+      "display_name": "T07",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 24,
+      "included_credits": 4800,
+      "seats": 3,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_08": {
+      "id": "tier_08",
+      "display_name": "T08",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 29,
+      "included_credits": 5800,
+      "seats": 3,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_09": {
+      "id": "tier_09",
+      "display_name": "T09",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 34,
+      "included_credits": 6800,
+      "seats": 3,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_10": {
+      "id": "tier_10",
+      "display_name": "T10",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 39,
+      "included_credits": 7800,
+      "seats": 4,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_11": {
+      "id": "tier_11",
+      "display_name": "T11",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 49,
+      "included_credits": 9800,
+      "seats": 4,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_12": {
+      "id": "tier_12",
+      "display_name": "T12",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 59,
+      "included_credits": 11800,
+      "seats": 4,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_13": {
+      "id": "tier_13",
+      "display_name": "T13",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 69,
+      "included_credits": 13800,
+      "seats": 5,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_14": {
+      "id": "tier_14",
+      "display_name": "T14",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 79,
+      "included_credits": 15800,
+      "seats": 5,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_15": {
+      "id": "tier_15",
+      "display_name": "T15",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 89,
+      "included_credits": 17800,
+      "seats": 5,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_16": {
+      "id": "tier_16",
+      "display_name": "T16",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 99,
+      "included_credits": 19800,
+      "seats": 6,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_17": {
+      "id": "tier_17",
+      "display_name": "T17",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 119,
+      "included_credits": 23800,
+      "seats": 6,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_18": {
+      "id": "tier_18",
+      "display_name": "T18",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 139,
+      "included_credits": 27800,
+      "seats": 6,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_19": {
+      "id": "tier_19",
+      "display_name": "T19",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 149,
+      "included_credits": 29800,
+      "seats": 7,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_20": {
+      "id": "tier_20",
+      "display_name": "T20",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 169,
+      "included_credits": 33800,
+      "seats": 7,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_21": {
+      "id": "tier_21",
+      "display_name": "T21",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 199,
+      "included_credits": 39800,
+      "seats": 7,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_22": {
+      "id": "tier_22",
+      "display_name": "T22",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 229,
+      "included_credits": 45800,
+      "seats": 8,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_23": {
+      "id": "tier_23",
+      "display_name": "T23",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 249,
+      "included_credits": 49800,
+      "seats": 8,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_24": {
+      "id": "tier_24",
+      "display_name": "T24",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 279,
+      "included_credits": 55800,
+      "seats": 8,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_25": {
+      "id": "tier_25",
+      "display_name": "T25",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 299,
+      "included_credits": 59800,
+      "seats": 9,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_26": {
+      "id": "tier_26",
+      "display_name": "T26",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 349,
+      "included_credits": 69800,
+      "seats": 9,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_27": {
+      "id": "tier_27",
+      "display_name": "T27",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 399,
+      "included_credits": 79800,
+      "seats": 9,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_28": {
+      "id": "tier_28",
+      "display_name": "T28",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 449,
+      "included_credits": 89800,
+      "seats": 10,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_29": {
+      "id": "tier_29",
+      "display_name": "T29",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 499,
+      "included_credits": 99800,
+      "seats": 10,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_30": {
+      "id": "tier_30",
+      "display_name": "T30",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 599,
+      "included_credits": 119800,
+      "seats": 10,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_31": {
+      "id": "tier_31",
+      "display_name": "T31",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 699,
+      "included_credits": 139800,
+      "seats": 11,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_32": {
+      "id": "tier_32",
+      "display_name": "T32",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 799,
+      "included_credits": 159800,
+      "seats": 11,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_33": {
+      "id": "tier_33",
+      "display_name": "T33",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 899,
+      "included_credits": 179800,
+      "seats": 11,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_34": {
+      "id": "tier_34",
+      "display_name": "T34",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 999,
+      "included_credits": 199800,
+      "seats": 12,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_35": {
+      "id": "tier_35",
+      "display_name": "T35",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 1199,
+      "included_credits": 239800,
+      "seats": 12,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_36": {
+      "id": "tier_36",
+      "display_name": "T36",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 1499,
+      "included_credits": 299800,
+      "seats": 12,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_37": {
+      "id": "tier_37",
+      "display_name": "T37",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 1799,
+      "included_credits": 359800,
+      "seats": 13,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_38": {
+      "id": "tier_38",
+      "display_name": "T38",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 1999,
+      "included_credits": 399800,
+      "seats": 13,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_39": {
+      "id": "tier_39",
+      "display_name": "T39",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 2499,
+      "included_credits": 499800,
+      "seats": 13,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_40": {
+      "id": "tier_40",
+      "display_name": "T40",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 2999,
+      "included_credits": 599800,
+      "seats": 14,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_41": {
+      "id": "tier_41",
+      "display_name": "T41",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 3999,
+      "included_credits": 799800,
+      "seats": 14,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "tier_42": {
+      "id": "tier_42",
+      "display_name": "T42",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 4999,
+      "included_credits": 999800,
+      "seats": 14,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "DRAFT pricing \u2014 not marketing-live until Crystal confirms. On-device privacy: customer data/workspace stays on device by default; cloud only when they opt into a connector/inference call. Universal entitlement across all categories. Shared billable credits wallet (~1 credit \u2248 AUD $0.01 platform cost basis \u2014 DRAFT). Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+    },
+    "free": {
+      "display_name": "Free",
+      "subtitle": "Sandbox \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 0,
+      "included_credits": 500,
+      "seats": 1,
+      "sandbox_only": true,
+      "production": false,
+      "overage_policy": "hard_cap",
+      "margin_floor_percent": null,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "free_template",
+      "comment": "LEGACY ALIAS \u2192 tier_01 (Free). Prefer tier_01 going forward. DRAFT.",
+      "id": "free",
+      "alias_of": "tier_01"
+    },
+    "paid": {
+      "display_name": "T02",
+      "subtitle": "Production \u00b7 on-device by default",
+      "draft": true,
+      "currency": "AUD",
+      "price_aud_monthly": 5,
+      "included_credits": 1000,
+      "seats": 1,
+      "sandbox_only": false,
+      "production": true,
+      "overage_policy": "metered",
+      "margin_floor_percent": 30,
+      "stripe_price_id": null,
+      "stripe_metered_price_id": null,
+      "inherits": "paid_template",
+      "comment": "LEGACY ALIAS \u2192 representative paid tier (tier_02). Prefer explicit tier_NN. DRAFT.",
+      "id": "paid",
+      "alias_of": "tier_02"
+    }
+  },
+  "creation_platform_catalog": {
+    "comment": "Pluggable registry \u2014 Crystal fills connector_id, display_name, capabilities, and billing_mode. Examples of the class (not hardcoded exclusives): Suno (music), CapCut (video edit/export), plus image gen, design tools, voice, etc.",
+    "connectors": [
+      {
+        "connector_id": "PLACEHOLDER_music_provider",
+        "display_name": "PLACEHOLDER (e.g. music generation class \u2014 Suno-class)",
+        "category": "creation_platforms",
+        "capabilities": [
+          "generate",
+          "export"
+        ],
+        "meter_units": [
+          "generation",
+          "export",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_video_provider",
+        "display_name": "PLACEHOLDER (e.g. video edit/export class \u2014 CapCut-class)",
+        "category": "creation_platforms",
+        "capabilities": [
+          "edit",
+          "render",
+          "export",
+          "webhook"
+        ],
+        "meter_units": [
+          "render_minute",
+          "export",
+          "storage_gb",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_image_provider",
+        "display_name": "PLACEHOLDER (image generation class)",
+        "category": "creation_platforms",
+        "capabilities": [
+          "generate",
+          "export"
+        ],
+        "meter_units": [
+          "generation",
+          "export",
+          "storage_gb",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_design_provider",
+        "display_name": "PLACEHOLDER (design tools class)",
+        "category": "creation_platforms",
+        "capabilities": [
+          "edit",
+          "export"
+        ],
+        "meter_units": [
+          "api_call",
+          "export",
+          "storage_gb"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_voice_provider",
+        "display_name": "PLACEHOLDER (voice / TTS class)",
+        "category": "creation_platforms",
+        "capabilities": [
+          "generate",
+          "export"
+        ],
+        "meter_units": [
+          "generation",
+          "api_call",
+          "storage_gb"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      }
+    ]
+  },
+  "settlement": {
+    "customer_billing": "stripe",
+    "stripe_pays_providers_directly": false,
+    "notes": "Stripe collects customer payments into the platform balance. AI providers, creation platforms, social networks, MCP hosts, third-party APIs, and generic connectors bill the platform separately (or the customer via BYOK/app credentials) unless Crystal documents a Stripe Connect relationship with that provider. BYOK / bring-your-own-app-credentials removes platform credit exposure for that connector. Stripe does NOT pay third parties directly by default. DRAFT 42-tier ladder: Stripe bills customer; does NOT pay providers directly. BYOK preferred."
+  },
+  "social_media_catalog": {
+    "comment": "Extensible social_media registry. Class examples (not exclusive): X/Twitter, Instagram, TikTok, YouTube, Facebook/Meta, LinkedIn, Threads, Bluesky, Discord, Telegram. Crystal adds/removes connector_ids.",
+    "connectors": [
+      {
+        "connector_id": "PLACEHOLDER_x_twitter",
+        "display_name": "PLACEHOLDER X/Twitter-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics",
+          "inbox",
+          "webhook",
+          "multi_account"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics_pull",
+          "inbox_action",
+          "webhook_delivery",
+          "linked_account",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_instagram",
+        "display_name": "PLACEHOLDER Instagram-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics",
+          "inbox",
+          "webhook",
+          "multi_account"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics_pull",
+          "inbox_action",
+          "webhook_delivery",
+          "linked_account",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_tiktok",
+        "display_name": "PLACEHOLDER TikTok-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics",
+          "webhook"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics_pull",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_youtube",
+        "display_name": "PLACEHOLDER YouTube-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics",
+          "webhook"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics_pull",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_meta_facebook",
+        "display_name": "PLACEHOLDER Facebook/Meta-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics",
+          "inbox",
+          "webhook",
+          "multi_account"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics_pull",
+          "inbox_action",
+          "webhook_delivery",
+          "linked_account",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_linkedin",
+        "display_name": "PLACEHOLDER LinkedIn-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics",
+          "webhook"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics_pull",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_threads",
+        "display_name": "PLACEHOLDER Threads-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "analytics",
+          "webhook"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "analytics_pull",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_bluesky",
+        "display_name": "PLACEHOLDER Bluesky-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "analytics",
+          "webhook"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "analytics_pull",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_discord",
+        "display_name": "PLACEHOLDER Discord-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "inbox",
+          "webhook"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "inbox_action",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_telegram",
+        "display_name": "PLACEHOLDER Telegram-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "inbox",
+          "webhook"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "inbox_action",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_social_future",
+        "display_name": "PLACEHOLDER future social platform (extensible)",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics",
+          "inbox",
+          "webhook",
+          "multi_account"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics_pull",
+          "inbox_action",
+          "webhook_delivery",
+          "linked_account",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      }
+    ]
+  },
+  "mcp_servers_catalog": {
+    "comment": "Pluggable MCP server registry. Every tool/resource/prompt invocation is entitled. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+    "connectors": [
+      {
+        "connector_id": "PLACEHOLDER_mcp_filesystem",
+        "display_name": "PLACEHOLDER MCP filesystem-class",
+        "category": "mcp_servers",
+        "capabilities": [
+          "tool_call",
+          "resource_read"
+        ],
+        "meter_units": [
+          "tool_call",
+          "resource_read",
+          "session"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_mcp_browser",
+        "display_name": "PLACEHOLDER MCP browser-class",
+        "category": "mcp_servers",
+        "capabilities": [
+          "tool_call",
+          "resource_read",
+          "prompt_get"
+        ],
+        "meter_units": [
+          "tool_call",
+          "resource_read",
+          "prompt_get",
+          "session"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_mcp_future",
+        "display_name": "PLACEHOLDER future MCP server (extensible)",
+        "category": "mcp_servers",
+        "capabilities": [
+          "tool_call",
+          "resource_read",
+          "prompt_get"
+        ],
+        "meter_units": [
+          "tool_call",
+          "resource_read",
+          "prompt_get",
+          "session"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      }
+    ]
+  },
+  "apis_catalog": {
+    "comment": "First-party + third-party HTTP/GraphQL/gRPC. No entitlement bypass. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+    "connectors": [
+      {
+        "connector_id": "PLACEHOLDER_api_first_party",
+        "display_name": "PLACEHOLDER first-party CrystalCore API",
+        "category": "apis",
+        "capabilities": [
+          "http",
+          "graphql"
+        ],
+        "meter_units": [
+          "http_call",
+          "graphql_call",
+          "request"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null,
+        "api_kind": "first_party"
+      },
+      {
+        "connector_id": "PLACEHOLDER_api_third_party_http",
+        "display_name": "PLACEHOLDER third-party HTTP API",
+        "category": "apis",
+        "capabilities": [
+          "http"
+        ],
+        "meter_units": [
+          "http_call",
+          "request"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null,
+        "api_kind": "third_party"
+      },
+      {
+        "connector_id": "PLACEHOLDER_api_graphql",
+        "display_name": "PLACEHOLDER GraphQL API",
+        "category": "apis",
+        "capabilities": [
+          "graphql"
+        ],
+        "meter_units": [
+          "graphql_call",
+          "request"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null,
+        "api_kind": "third_party"
+      },
+      {
+        "connector_id": "PLACEHOLDER_api_grpc",
+        "display_name": "PLACEHOLDER gRPC API",
+        "category": "apis",
+        "capabilities": [
+          "grpc"
+        ],
+        "meter_units": [
+          "grpc_call",
+          "request"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null,
+        "api_kind": "third_party"
+      }
+    ]
+  },
+  "connectors_catalog": {
+    "comment": "Generic integration connectors. Types: CRM, email, calendar, storage, payments, analytics, other. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+    "connectors": [
+      {
+        "connector_id": "PLACEHOLDER_connector_crm",
+        "display_name": "PLACEHOLDER CRM-class (e.g. Salesforce/HubSpot-class)",
+        "category": "connectors",
+        "capabilities": [
+          "invoke",
+          "sync",
+          "webhook"
+        ],
+        "meter_units": [
+          "invoke",
+          "sync",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null,
+        "connector_type": "crm"
+      },
+      {
+        "connector_id": "PLACEHOLDER_connector_email",
+        "display_name": "PLACEHOLDER email-class",
+        "category": "connectors",
+        "capabilities": [
+          "invoke",
+          "sync",
+          "webhook"
+        ],
+        "meter_units": [
+          "invoke",
+          "sync",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null,
+        "connector_type": "email"
+      },
+      {
+        "connector_id": "PLACEHOLDER_connector_calendar",
+        "display_name": "PLACEHOLDER calendar-class",
+        "category": "connectors",
+        "capabilities": [
+          "invoke",
+          "sync"
+        ],
+        "meter_units": [
+          "invoke",
+          "sync",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null,
+        "connector_type": "calendar"
+      },
+      {
+        "connector_id": "PLACEHOLDER_connector_storage",
+        "display_name": "PLACEHOLDER storage-class",
+        "category": "connectors",
+        "capabilities": [
+          "invoke",
+          "sync"
+        ],
+        "meter_units": [
+          "invoke",
+          "sync",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null,
+        "connector_type": "storage"
+      },
+      {
+        "connector_id": "PLACEHOLDER_connector_payments",
+        "display_name": "PLACEHOLDER payments-class (customer billing \u2260 provider payout)",
+        "category": "connectors",
+        "capabilities": [
+          "invoke",
+          "webhook"
+        ],
+        "meter_units": [
+          "invoke",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null,
+        "connector_type": "payments"
+      },
+      {
+        "connector_id": "PLACEHOLDER_connector_analytics",
+        "display_name": "PLACEHOLDER analytics-class",
+        "category": "connectors",
+        "capabilities": [
+          "invoke",
+          "sync"
+        ],
+        "meter_units": [
+          "invoke",
+          "sync",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null,
+        "connector_type": "analytics"
+      },
+      {
+        "connector_id": "PLACEHOLDER_connector_future",
+        "display_name": "PLACEHOLDER future connector (open-ended slot)",
+        "category": "connectors",
+        "capabilities": [
+          "invoke",
+          "sync",
+          "webhook"
+        ],
+        "meter_units": [
+          "invoke",
+          "sync",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null,
+        "connector_type": "other"
+      }
+    ]
+  },
+  "developer_catalog": {
+    "comment": "Developer tooling entitlements surface (not third-party vendors). Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+    "capabilities": [
+      {
+        "id": "PLACEHOLDER_dev_api_keys",
+        "display_name": "API keys",
+        "meter_units": [
+          "api_key"
+        ]
+      },
+      {
+        "id": "PLACEHOLDER_dev_environments",
+        "display_name": "Environments (sandbox/production)",
+        "meter_units": [
+          "environment"
+        ]
+      },
+      {
+        "id": "PLACEHOLDER_dev_webhooks",
+        "display_name": "Webhook endpoints",
+        "meter_units": [
+          "webhook_endpoint"
+        ]
+      },
+      {
+        "id": "PLACEHOLDER_dev_sdk",
+        "display_name": "SDK usage",
+        "meter_units": [
+          "sdk_call"
+        ]
+      },
+      {
+        "id": "PLACEHOLDER_dev_team_seats",
+        "display_name": "Team seats",
+        "meter_units": [
+          "team_seat"
+        ]
+      },
+      {
+        "id": "PLACEHOLDER_dev_log_retention",
+        "display_name": "Log retention",
+        "meter_units": [
+          "log_retention_day"
+        ]
+      },
+      {
+        "id": "PLACEHOLDER_dev_rate_limits",
+        "display_name": "Rate limits",
+        "meter_units": [
+          "rate_limit_burst"
+        ]
+      }
+    ]
+  },
+  "automation_catalog": {
+    "comment": "Scheduled jobs, agents, workflows, retries \u2014 all entitled. Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+    "connectors": [
+      {
+        "connector_id": "PLACEHOLDER_automation_scheduler",
+        "display_name": "PLACEHOLDER scheduled jobs",
+        "category": "automation",
+        "capabilities": [
+          "schedule",
+          "run"
+        ],
+        "meter_units": [
+          "scheduled_run",
+          "retry"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_automation_agent",
+        "display_name": "PLACEHOLDER agents",
+        "category": "automation",
+        "capabilities": [
+          "agent_run"
+        ],
+        "meter_units": [
+          "agent_run",
+          "retry"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_automation_workflow",
+        "display_name": "PLACEHOLDER workflows",
+        "category": "automation",
+        "capabilities": [
+          "workflow_run"
+        ],
+        "meter_units": [
+          "workflow_run",
+          "retry"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      }
+    ]
+  },
+  "catalog_policy": {
+    "universal_entitlement": true,
+    "deny_unregistered_capabilities_by_default": true,
+    "open_ended_note": "Catalog is open-ended: unknown future platforms register as connectors with a type + meter units. All spend/quota/access goes through central entitlements.",
+    "categories": [
+      "inference",
+      "creation_platforms",
+      "social_media",
+      "mcp_servers",
+      "apis",
+      "connectors",
+      "developer",
+      "automation"
+    ],
+    "on_device_privacy_all_tiers": true
+  }
+}
