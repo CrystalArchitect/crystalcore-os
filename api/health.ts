@@ -15,6 +15,7 @@ export default function handler(
       'usage_ledger',
       'stripe.checkout_portal_webhooks',
       'creation_platforms',
+      'social_media',
       'byok',
       'circuit_breaker',
     ],

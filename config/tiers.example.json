@@ -33,13 +33,26 @@
             },
             "creation_platforms": {
               "enabled": true,
-              "description": "Pluggable creation providers (music gen, video edit/export, image gen, design, voice, etc.). Examples of class members: Suno, CapCut — not an exhaustive allowlist; Crystal curates the catalog.",
+              "description": "Pluggable creation providers (music gen, video edit/export, image gen, design, voice, etc.). Examples of class members: Suno, CapCut \u2014 not an exhaustive allowlist; Crystal curates the catalog.",
               "max_count": null,
               "allowed_connector_ids": [],
               "sandbox_only": true,
               "production_access": false,
               "webhooks_allowed": false,
               "exports_allowed": false
+            },
+            "social_media": {
+              "enabled": true,
+              "description": "Pluggable social media connectors (X/Twitter, Instagram, TikTok, YouTube, Facebook/Meta, LinkedIn, Threads, Bluesky, Discord, Telegram, and future platforms). Catalog is extensible \u2014 not hardcoded to a fixed vendor list.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": true,
+              "production_access": false,
+              "webhooks_allowed": false,
+              "auto_posting_allowed": false,
+              "max_linked_accounts": null,
+              "team_seats": null,
+              "log_retention_days": null
             }
           }
         },
@@ -56,7 +69,7 @@
         "support": "community"
       },
       "creation_platform_metering": {
-        "comment": "Unit prices and included amounts are PLACEHOLDER nulls — Crystal supplies after provider contracts.",
+        "comment": "Unit prices and included amounts are PLACEHOLDER nulls \u2014 Crystal supplies after provider contracts.",
         "included": {
           "generations": null,
           "render_minutes": null,
@@ -77,6 +90,32 @@
       "provider_spend_ceiling": {
         "daily": null,
         "monthly": null
+      },
+      "social_media_metering": {
+        "comment": "Structure only \u2014 all amounts/prices null. Free: hard caps; no uncapped auto-posting.",
+        "included": {
+          "oauth_connects": null,
+          "publishes": null,
+          "schedules": null,
+          "media_uploads": null,
+          "analytics_pulls": null,
+          "inbox_actions": null,
+          "webhook_deliveries": null,
+          "linked_accounts": null,
+          "api_calls": null
+        },
+        "overage_policy": "hard_cap",
+        "unit_prices": {
+          "oauth_connect": null,
+          "publish": null,
+          "schedule": null,
+          "media_upload": null,
+          "analytics_pull": null,
+          "inbox_action": null,
+          "webhook_delivery": null,
+          "linked_account": null,
+          "api_call": null
+        }
       }
     },
     "paid": {
@@ -117,6 +156,19 @@
               "production_access": true,
               "webhooks_allowed": true,
               "exports_allowed": true
+            },
+            "social_media": {
+              "enabled": true,
+              "description": "Production social media support: more platforms/accounts, higher post/API quotas, production webhooks, longer retention, team seats. Limits PLACEHOLDER \u2014 Crystal fills.",
+              "max_count": null,
+              "allowed_connector_ids": [],
+              "sandbox_only": false,
+              "production_access": true,
+              "webhooks_allowed": true,
+              "auto_posting_allowed": true,
+              "max_linked_accounts": null,
+              "team_seats": null,
+              "log_retention_days": null
             }
           }
         },
@@ -154,29 +206,78 @@
       "provider_spend_ceiling": {
         "daily": null,
         "monthly": null
+      },
+      "social_media_metering": {
+        "comment": "Meter OAuth connects, publishes, schedules, media uploads, analytics, inbox, webhooks, linked accounts. Stripe does NOT pay Meta/TikTok/etc. directly unless documented Connect exists.",
+        "included": {
+          "oauth_connects": null,
+          "publishes": null,
+          "schedules": null,
+          "media_uploads": null,
+          "analytics_pulls": null,
+          "inbox_actions": null,
+          "webhook_deliveries": null,
+          "linked_accounts": null,
+          "api_calls": null
+        },
+        "overage_policy": "PLACEHOLDER_hard_cap_or_metered",
+        "unit_prices": {
+          "oauth_connect": null,
+          "publish": null,
+          "schedule": null,
+          "media_upload": null,
+          "analytics_pull": null,
+          "inbox_action": null,
+          "webhook_delivery": null,
+          "linked_account": null,
+          "api_call": null
+        }
       }
     }
   },
   "creation_platform_catalog": {
-    "comment": "Pluggable registry — Crystal fills connector_id, display_name, capabilities, and billing_mode. Examples of the class (not hardcoded exclusives): Suno (music), CapCut (video edit/export), plus image gen, design tools, voice, etc.",
+    "comment": "Pluggable registry \u2014 Crystal fills connector_id, display_name, capabilities, and billing_mode. Examples of the class (not hardcoded exclusives): Suno (music), CapCut (video edit/export), plus image gen, design tools, voice, etc.",
     "connectors": [
       {
         "connector_id": "PLACEHOLDER_music_provider",
-        "display_name": "PLACEHOLDER (e.g. music generation class — Suno-class)",
+        "display_name": "PLACEHOLDER (e.g. music generation class \u2014 Suno-class)",
         "category": "creation_platforms",
-        "capabilities": ["generate", "export"],
-        "meter_units": ["generation", "export", "api_call"],
-        "billing_modes": ["platform_managed", "byok"],
+        "capabilities": [
+          "generate",
+          "export"
+        ],
+        "meter_units": [
+          "generation",
+          "export",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
         "free_eligible": null,
         "paid_eligible": null
       },
       {
         "connector_id": "PLACEHOLDER_video_provider",
-        "display_name": "PLACEHOLDER (e.g. video edit/export class — CapCut-class)",
+        "display_name": "PLACEHOLDER (e.g. video edit/export class \u2014 CapCut-class)",
         "category": "creation_platforms",
-        "capabilities": ["edit", "render", "export", "webhook"],
-        "meter_units": ["render_minute", "export", "storage_gb", "api_call"],
-        "billing_modes": ["platform_managed", "byok"],
+        "capabilities": [
+          "edit",
+          "render",
+          "export",
+          "webhook"
+        ],
+        "meter_units": [
+          "render_minute",
+          "export",
+          "storage_gb",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
         "free_eligible": null,
         "paid_eligible": null
       },
@@ -184,9 +285,20 @@
         "connector_id": "PLACEHOLDER_image_provider",
         "display_name": "PLACEHOLDER (image generation class)",
         "category": "creation_platforms",
-        "capabilities": ["generate", "export"],
-        "meter_units": ["generation", "export", "storage_gb", "api_call"],
-        "billing_modes": ["platform_managed", "byok"],
+        "capabilities": [
+          "generate",
+          "export"
+        ],
+        "meter_units": [
+          "generation",
+          "export",
+          "storage_gb",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
         "free_eligible": null,
         "paid_eligible": null
       },
@@ -194,9 +306,19 @@
         "connector_id": "PLACEHOLDER_design_provider",
         "display_name": "PLACEHOLDER (design tools class)",
         "category": "creation_platforms",
-        "capabilities": ["edit", "export"],
-        "meter_units": ["api_call", "export", "storage_gb"],
-        "billing_modes": ["platform_managed", "byok"],
+        "capabilities": [
+          "edit",
+          "export"
+        ],
+        "meter_units": [
+          "api_call",
+          "export",
+          "storage_gb"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
         "free_eligible": null,
         "paid_eligible": null
       },
@@ -204,9 +326,19 @@
         "connector_id": "PLACEHOLDER_voice_provider",
         "display_name": "PLACEHOLDER (voice / TTS class)",
         "category": "creation_platforms",
-        "capabilities": ["generate", "export"],
-        "meter_units": ["generation", "api_call", "storage_gb"],
-        "billing_modes": ["platform_managed", "byok"],
+        "capabilities": [
+          "generate",
+          "export"
+        ],
+        "meter_units": [
+          "generation",
+          "api_call",
+          "storage_gb"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
         "free_eligible": null,
         "paid_eligible": null
       }
@@ -215,6 +347,323 @@
   "settlement": {
     "customer_billing": "stripe",
     "stripe_pays_providers_directly": false,
-    "notes": "Stripe collects customer payments into the platform balance. Creation platforms (Suno-class, CapCut-class, etc.) and AI model providers bill the platform separately unless Crystal documents a Stripe Connect relationship with that provider. BYOK removes platform provider-credit exposure for that connector."
+    "notes": "Stripe collects customer payments into the platform balance. AI providers, creation platforms (Suno-class, CapCut-class, etc.), and social platforms (Meta/TikTok/X/etc.) bill the platform separately (or the customer via BYOK/app credentials) unless Crystal documents a Stripe Connect relationship with that provider. BYOK / bring-your-own-app-credentials removes platform OAuth-app credit exposure for that connector."
+  },
+  "social_media_catalog": {
+    "comment": "Extensible social_media registry. Class examples (not exclusive): X/Twitter, Instagram, TikTok, YouTube, Facebook/Meta, LinkedIn, Threads, Bluesky, Discord, Telegram. Crystal adds/removes connector_ids.",
+    "connectors": [
+      {
+        "connector_id": "PLACEHOLDER_x_twitter",
+        "display_name": "PLACEHOLDER X/Twitter-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics",
+          "inbox",
+          "webhook",
+          "multi_account"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics_pull",
+          "inbox_action",
+          "webhook_delivery",
+          "linked_account",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_instagram",
+        "display_name": "PLACEHOLDER Instagram-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics",
+          "inbox",
+          "webhook",
+          "multi_account"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics_pull",
+          "inbox_action",
+          "webhook_delivery",
+          "linked_account",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_tiktok",
+        "display_name": "PLACEHOLDER TikTok-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics",
+          "webhook"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics_pull",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_youtube",
+        "display_name": "PLACEHOLDER YouTube-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics",
+          "webhook"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics_pull",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_meta_facebook",
+        "display_name": "PLACEHOLDER Facebook/Meta-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics",
+          "inbox",
+          "webhook",
+          "multi_account"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics_pull",
+          "inbox_action",
+          "webhook_delivery",
+          "linked_account",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_linkedin",
+        "display_name": "PLACEHOLDER LinkedIn-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics",
+          "webhook"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics_pull",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_threads",
+        "display_name": "PLACEHOLDER Threads-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "analytics",
+          "webhook"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "analytics_pull",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_bluesky",
+        "display_name": "PLACEHOLDER Bluesky-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "analytics",
+          "webhook"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "analytics_pull",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_discord",
+        "display_name": "PLACEHOLDER Discord-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "inbox",
+          "webhook"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "inbox_action",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_telegram",
+        "display_name": "PLACEHOLDER Telegram-class",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "inbox",
+          "webhook"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "inbox_action",
+          "webhook_delivery",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      },
+      {
+        "connector_id": "PLACEHOLDER_social_future",
+        "display_name": "PLACEHOLDER future social platform (extensible)",
+        "category": "social_media",
+        "capabilities": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics",
+          "inbox",
+          "webhook",
+          "multi_account"
+        ],
+        "meter_units": [
+          "oauth_connect",
+          "publish",
+          "schedule",
+          "media_upload",
+          "analytics_pull",
+          "inbox_action",
+          "webhook_delivery",
+          "linked_account",
+          "api_call"
+        ],
+        "billing_modes": [
+          "platform_managed",
+          "byok"
+        ],
+        "free_eligible": null,
+        "paid_eligible": null
+      }
+    ]
   }
 }

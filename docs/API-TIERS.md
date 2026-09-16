@@ -16,6 +16,7 @@ Public/internal summary of **Free vs Paid**, how **settlement** is intended to w
 | Inference | Hard-capped allowance; no overages | Higher allowance; overage policy TBD by Crystal |
 | Developer connections | Limited connectors; no prod secrets | More connectors, webhooks, environments |
 | **Creation platforms** | Sandbox/dev access to a **limited** creation-connector set; **hard caps** | **Production** access, more platforms, higher quotas, webhooks/exports |
+| **Social media** | Sandbox/limited accounts; **hard caps**; no uncapped auto-posting | More accounts/platforms; higher post/API quotas; production webhooks; longer retention; team seats |
 | Support | Community | Priority / SLA TBD |
 
 Exact counts, catalogs, and prices: **Crystal fills** before marketing or charging.
@@ -58,13 +59,54 @@ Ledger events may record, per platform:
 
 Fields include customer charge, provider cost estimate, tax, Stripe fees, reserve, and platform margin — **values null until Crystal supplies cost tables**.
 
+
+## Social media (developer/provider connectors)
+
+Social networks are a pluggable connector category **`social_media`** under the **same** Free/Paid entitlements, usage ledger, and Stripe settlement model.
+
+**Class (extensible catalog — not hardcoded to a fixed short list):**
+
+- X / Twitter, Instagram, TikTok, YouTube, Facebook / Meta, LinkedIn, Threads, Bluesky, Discord, Telegram
+- Future platforms Crystal adds to `social_media_catalog`
+
+**Capabilities to entitle / meter (structure only — quotas/prices TBD):**
+
+- OAuth connect / account linking
+- Publish / schedule posts
+- Media upload
+- Analytics / insights pulls
+- Inbox / comments / DMs (where the network supports it)
+- Webhooks for engagement events
+- Multi-account / multi-brand seats
+
+**Free**
+
+- Sandbox or limited linked accounts
+- Hard caps on publishes, schedules, uploads, API calls, etc.
+- **No uncapped auto-posting** that burns platform or provider cost
+
+**Paid**
+
+- More accounts and platforms
+- Higher post / API quotas
+- Production engagement webhooks
+- Longer log / analytics retention
+- Team seats (counts TBD)
+
+**Credentials**
+
+- **Platform-managed OAuth apps** (Crystal’s developer apps) and/or
+- **BYOK / bring-your-own-app-credentials** (customer’s client id/secret) — customer bears that network’s app limits; Crystal charges a platform fee via Stripe
+
+**Settlement:** Stripe does **not** pay Meta, TikTok, X, or other social networks directly unless a documented Stripe Connect relationship exists (not assumed).
+
 ## Settlement hybrid (do not misstate)
 
 1. **Stripe** = customer billing (Checkout, Customer Portal, subscriptions, metered invoices, webhooks).
 2. Stripe collects into the **platform** Stripe balance / bank settlement.
-3. Stripe does **not**, by itself, pay OpenAI, Anthropic, **Suno, CapCut**, or other creation platforms — unless a provider **explicitly** participates in a documented **Stripe Connect** (or similar) arrangement. **None is assumed.**
-4. **Platform-managed keys:** Crystal’s provider accounts are billed separately (invoice/auto-charge where supported); maintain reserves; circuit-break on unsafe balance or customer payment failure.
-5. **BYOK:** Customer brings their own Suno / CapCut / model / etc. keys; customer pays that provider directly; Crystal charges a **platform fee** via Stripe (removes Crystal’s provider-credit exposure for that path).
+3. Stripe does **not**, by itself, pay OpenAI, Anthropic, **Suno, CapCut**, **Meta, TikTok, X**, or other creation/social platforms — unless a provider **explicitly** participates in a documented **Stripe Connect** (or similar) arrangement. **None is assumed.**
+4. **Platform-managed keys / OAuth apps:** Crystal’s provider accounts (and social developer apps) are billed or rate-limited separately; maintain reserves; circuit-break on unsafe balance or customer payment failure.
+5. **BYOK / bring-your-own-app-credentials:** Customer brings their own Suno / CapCut / model / social app credentials; customer pays or operates under that provider’s terms; Crystal charges a **platform fee** via Stripe (removes Crystal’s provider-credit exposure for that path).
 6. **Stripe Connect** (if ever used): marketplace payouts to participating third-party developers/vendors on the platform — **not** a generic way to pay arbitrary AI/creation provider bills.
 
 ## Scaffold surface (this PR)
@@ -78,7 +120,8 @@ Fields include customer charge, provider cost estimate, tax, Stripe fees, reserv
 | `api/billing/` | Checkout/portal stubs, webhook signature stub, circuit breaker |
 | `api/byok/` | BYOK header resolution stub |
 | `api/connections/creationPlatforms.ts` | Pluggable creation-platform registry + run path |
-| `config/tiers.example.json` | Free/Paid + `creation_platforms` PLACEHOLDERs |
+| `api/connections/socialMedia.ts` | Pluggable social_media registry + run path |
+| `config/tiers.example.json` | Free/Paid + `creation_platforms` + `social_media` PLACEHOLDERs |
 | `.env.example` | Env **names** only |
 
 Static site (`index.html`, `styles.css`, `app.js`) remains unchanged and deployable.
@@ -99,4 +142,4 @@ Static site (`index.html`, `styles.css`, `app.js`) remains unchanged and deploya
 
 ## What is explicitly TBD
 
-All dollar amounts, included units, RPM/TPM, connector counts, creation quotas, margin %, Stripe Price IDs, tax/GST treatment, legal entity/currency details, and which specific Suno/CapCut/etc. products are Free-eligible.
+All dollar amounts, included units, RPM/TPM, connector counts, creation quotas, social post/account quotas, margin %, Stripe Price IDs, tax/GST treatment, legal entity/currency details, and which specific Suno/CapCut/social network products are Free-eligible.

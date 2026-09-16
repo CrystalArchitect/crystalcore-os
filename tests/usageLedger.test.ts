@@ -6,6 +6,7 @@ import {
   recordUsage,
 } from '../api/metering/usageLedger.js';
 import { runCreationAction, entitlementsForTier } from '../api/connections/creationPlatforms.js';
+import { runSocialAction, socialEntitlementsForTier } from '../api/connections/socialMedia.js';
 
 describe('usage ledger', () => {
   beforeEach(async () => {
@@ -53,6 +54,25 @@ describe('usage ledger', () => {
       meterUnit: 'generation',
       meterQuantity: 1,
       requestId: 'req_create_1',
+      environment: 'production',
+    });
+    assert.equal(result.decision.allow, true);
+    assert.ok(result.ledgerId);
+  });
+
+  it('runSocialAction allows paid publish and writes ledger', async () => {
+    const ent = socialEntitlementsForTier('paid', 'acct_paid', {
+      allowedSocialConnectorIds: ['PLACEHOLDER_linkedin'],
+      socialIncluded: { publish: 10 },
+      socialUsed: { publish: 0 },
+    });
+    const result = await runSocialAction({
+      entitlements: ent,
+      connectorId: 'PLACEHOLDER_linkedin',
+      action: 'publish',
+      meterUnit: 'publish',
+      meterQuantity: 1,
+      requestId: 'req_social_1',
       environment: 'production',
     });
     assert.equal(result.decision.allow, true);

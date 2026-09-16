@@ -16,9 +16,20 @@ export type Capability =
   | 'creation.generate'
   | 'creation.render'
   | 'creation.export'
-  | 'creation.webhook';
+  | 'creation.webhook'
+  | 'social.oauth_connect'
+  | 'social.publish'
+  | 'social.schedule'
+  | 'social.media_upload'
+  | 'social.analytics'
+  | 'social.inbox'
+  | 'social.webhook'
+  | 'social.multi_account';
 
-export type ConnectorCategory = 'integrations' | 'creation_platforms';
+export type ConnectorCategory =
+  | 'integrations'
+  | 'creation_platforms'
+  | 'social_media';
 
 /** Meter units for creation platforms (music, video, image, design, voice, …). */
 export type CreationMeterUnit =
@@ -26,6 +37,18 @@ export type CreationMeterUnit =
   | 'render_minute'
   | 'export'
   | 'storage_gb'
+  | 'api_call';
+
+/** Meter units for social media connectors (extensible catalog). */
+export type SocialMeterUnit =
+  | 'oauth_connect'
+  | 'publish'
+  | 'schedule'
+  | 'media_upload'
+  | 'analytics_pull'
+  | 'inbox_action'
+  | 'webhook_delivery'
+  | 'linked_account'
   | 'api_call';
 
 export type BillingMode = 'platform_managed' | 'byok';
@@ -77,6 +100,22 @@ export interface Entitlements {
     used: Partial<Record<CreationMeterUnit, number>>;
     overagePolicy: OveragePolicy;
   };
+  socialMedia: {
+    enabled: boolean;
+    maxCount: number | null;
+    allowedConnectorIds: string[];
+    sandboxOnly: boolean;
+    productionAccess: boolean;
+    webhooksAllowed: boolean;
+    /** Linked social accounts / brands (multi-account seats). */
+    maxLinkedAccounts: number | null;
+    teamSeats: number | null;
+    logRetentionDays: number | null;
+    autoPostingAllowed: boolean;
+    included: Partial<Record<SocialMeterUnit, number | null>>;
+    used: Partial<Record<SocialMeterUnit, number>>;
+    overagePolicy: OveragePolicy;
+  };
 }
 
 export type GateDecision =
@@ -102,14 +141,22 @@ export interface UsageLedgerEntry {
     | 'creation_render'
     | 'creation_export'
     | 'creation_storage'
-    | 'creation_api_call';
+    | 'creation_api_call'
+    | 'social_oauth'
+    | 'social_publish'
+    | 'social_schedule'
+    | 'social_media_upload'
+    | 'social_analytics'
+    | 'social_inbox'
+    | 'social_webhook'
+    | 'social_api_call';
   /** Provider / creation-platform id (e.g. placeholder catalog id). */
   provider: string | null;
   modelOrConnector: string | null;
   billingMode: BillingMode;
   inputUnits: number | null;
   outputUnits: number | null;
-  meterUnit: CreationMeterUnit | 'billable_token' | 'request' | null;
+  meterUnit: CreationMeterUnit | SocialMeterUnit | 'billable_token' | 'request' | null;
   meterQuantity: number | null;
   /** What Stripe would bill the customer (null until Crystal sets prices). */
   customerCharge: number | null;

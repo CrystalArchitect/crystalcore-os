@@ -38,7 +38,7 @@ Then open `http://localhost:3000` (or the port shown).
 
 ## API tiers scaffold (separate from marketing site)
 
-Serverless stubs under `api/` plus `config/tiers.example.json` and `docs/API-TIERS.md` scaffold Free/Paid entitlements, usage ledger, Stripe settlement stubs, BYOK, and **creation platforms** (pluggable music/video/image/design/voice connectors — Suno-class, CapCut-class, etc.).
+Serverless stubs under `api/` plus `config/tiers.example.json` and `docs/API-TIERS.md` scaffold Free/Paid entitlements, usage ledger, Stripe settlement stubs, BYOK, **creation platforms** (Suno-class, CapCut-class, etc.), and **social media** (X, Instagram, TikTok, YouTube, Meta, LinkedIn, Threads, Bluesky, Discord, Telegram, …) as pluggable connectors.
 
 ```bash
 npm install

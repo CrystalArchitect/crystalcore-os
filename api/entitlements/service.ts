@@ -1,6 +1,6 @@
 /**
  * Central entitlement service — ONE gate for inference + developer connections
- * + creation platforms (music/video/image/design/voice pluggable connectors).
+ * + creation platforms + social media (pluggable connector catalogs).
  */
 
 import type {
@@ -8,10 +8,10 @@ import type {
   CreationMeterUnit,
   Entitlements,
   GateDecision,
+  SocialMeterUnit,
   TierId,
 } from '../lib/types.js';
 
-/** Build entitlements from tier + live usage. Null limits mean "not configured yet" → deny for safety in free hard-cap paths when exhausted flags are set. */
 export function buildEntitlements(input: {
   tierId: TierId;
   accountId: string;
@@ -21,10 +21,13 @@ export function buildEntitlements(input: {
   creationUsed?: Partial<Record<CreationMeterUnit, number>>;
   creationIncluded?: Partial<Record<CreationMeterUnit, number | null>>;
   allowedCreationConnectorIds?: string[];
+  socialUsed?: Partial<Record<SocialMeterUnit, number>>;
+  socialIncluded?: Partial<Record<SocialMeterUnit, number | null>>;
+  allowedSocialConnectorIds?: string[];
   overagePolicy?: 'hard_cap' | 'metered';
 }): Entitlements {
   const isFree = input.tierId === 'free';
-  const overage = input.overagePolicy ?? (isFree ? 'hard_cap' : 'hard_cap');
+  const overage = input.overagePolicy ?? 'hard_cap';
 
   return {
     tierId: input.tierId,
@@ -65,6 +68,32 @@ export function buildEntitlements(input: {
       used: input.creationUsed ?? {},
       overagePolicy: overage,
     },
+    socialMedia: {
+      enabled: true,
+      maxCount: null,
+      allowedConnectorIds: input.allowedSocialConnectorIds ?? [],
+      sandboxOnly: isFree,
+      productionAccess: !isFree,
+      webhooksAllowed: !isFree,
+      maxLinkedAccounts: null,
+      teamSeats: null,
+      logRetentionDays: null,
+      /** Free: no uncapped auto-posting that burns platform/provider cost. */
+      autoPostingAllowed: !isFree,
+      included: input.socialIncluded ?? {
+        oauth_connect: null,
+        publish: null,
+        schedule: null,
+        media_upload: null,
+        analytics_pull: null,
+        inbox_action: null,
+        webhook_delivery: null,
+        linked_account: null,
+        api_call: null,
+      },
+      used: input.socialUsed ?? {},
+      overagePolicy: overage,
+    },
   };
 }
 
@@ -73,13 +102,18 @@ function exhausted(
   included: number | null,
   policy: 'hard_cap' | 'metered',
 ): boolean {
-  if (included === null) {
-    // Unconfigured allowance: treat Free hard_cap as deny-until-configured when used > 0 and tests set included explicitly.
-    return false;
-  }
+  if (included === null) return false;
   if (policy === 'metered') return false;
   return used >= included;
 }
+
+type GateOpts = {
+  connectorId?: string;
+  meterUnit?: CreationMeterUnit | SocialMeterUnit;
+  meterQuantity?: number;
+  model?: string;
+  environment?: 'sandbox' | 'production';
+};
 
 /**
  * Authorize a capability against entitlements.
@@ -88,13 +122,7 @@ function exhausted(
 export function authorize(
   entitlements: Entitlements,
   capability: Capability,
-  opts?: {
-    connectorId?: string;
-    meterUnit?: CreationMeterUnit;
-    meterQuantity?: number;
-    model?: string;
-    environment?: 'sandbox' | 'production';
-  },
+  opts?: GateOpts,
 ): GateDecision {
   if (entitlements.softLocked) {
     return {
@@ -186,6 +214,17 @@ export function authorize(
       return authorizeCreation(entitlements, capability, opts);
     }
 
+    case 'social.oauth_connect':
+    case 'social.publish':
+    case 'social.schedule':
+    case 'social.media_upload':
+    case 'social.analytics':
+    case 'social.inbox':
+    case 'social.webhook':
+    case 'social.multi_account': {
+      return authorizeSocial(entitlements, capability, opts);
+    }
+
     default:
       return {
         allow: false,
@@ -199,12 +238,7 @@ export function authorize(
 function authorizeCreation(
   entitlements: Entitlements,
   capability: Capability,
-  opts?: {
-    connectorId?: string;
-    meterUnit?: CreationMeterUnit;
-    meterQuantity?: number;
-    environment?: 'sandbox' | 'production';
-  },
+  opts?: GateOpts,
 ): GateDecision {
   const cp = entitlements.creationPlatforms;
   if (!cp.enabled) {
@@ -257,9 +291,9 @@ function authorizeCreation(
     };
   }
 
-  const unit = opts?.meterUnit;
+  const unit = opts?.meterUnit as CreationMeterUnit | undefined;
   const qty = opts?.meterQuantity ?? 1;
-  if (unit) {
+  if (unit && unit in (cp.included as object)) {
     const included = cp.included[unit] ?? null;
     const used = cp.used[unit] ?? 0;
     if (exhausted(used + qty - 1, included, cp.overagePolicy)) {
@@ -268,6 +302,85 @@ function authorizeCreation(
         status: 429,
         code: 'creation_allowance_exhausted',
         message: `Creation platform ${unit} allowance exhausted (hard cap).`,
+      };
+    }
+  }
+
+  return { allow: true };
+}
+
+function authorizeSocial(
+  entitlements: Entitlements,
+  capability: Capability,
+  opts?: GateOpts,
+): GateDecision {
+  const sm = entitlements.socialMedia;
+  if (!sm.enabled) {
+    return {
+      allow: false,
+      status: 403,
+      code: 'social_media_disabled',
+      message: 'Social media connectors are disabled for this account.',
+    };
+  }
+
+  if (opts?.environment === 'production' && !sm.productionAccess) {
+    return {
+      allow: false,
+      status: 403,
+      code: 'social_production_not_allowed',
+      message:
+        'Free tier: sandbox/limited social linking only. Paid unlocks production.',
+    };
+  }
+
+  if (
+    opts?.connectorId &&
+    sm.allowedConnectorIds.length > 0 &&
+    !sm.allowedConnectorIds.includes(opts.connectorId)
+  ) {
+    return {
+      allow: false,
+      status: 403,
+      code: 'social_connector_not_entitled',
+      message: 'Social platform not in this tier’s allowed catalog.',
+    };
+  }
+
+  if (capability === 'social.webhook' && !sm.webhooksAllowed) {
+    return {
+      allow: false,
+      status: 403,
+      code: 'social_webhooks_not_allowed',
+      message: 'Social engagement webhooks require paid entitlements.',
+    };
+  }
+
+  if (
+    (capability === 'social.publish' || capability === 'social.schedule') &&
+    !sm.autoPostingAllowed &&
+    opts?.environment === 'production'
+  ) {
+    return {
+      allow: false,
+      status: 403,
+      code: 'social_autopost_not_allowed',
+      message:
+        'Free tier: no uncapped auto-posting. Upgrade for production publish/schedule.',
+    };
+  }
+
+  const unit = opts?.meterUnit as SocialMeterUnit | undefined;
+  const qty = opts?.meterQuantity ?? 1;
+  if (unit) {
+    const included = sm.included[unit] ?? null;
+    const used = sm.used[unit] ?? 0;
+    if (exhausted(used + qty - 1, included, sm.overagePolicy)) {
+      return {
+        allow: false,
+        status: 429,
+        code: 'social_allowance_exhausted',
+        message: `Social media ${unit} allowance exhausted (hard cap).`,
       };
     }
   }

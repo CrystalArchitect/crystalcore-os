@@ -35,6 +35,13 @@ export function freeTierHardCapGate(
       sandboxOnly: true,
       productionAccess: false,
     },
+    socialMedia: {
+      ...entitlements.socialMedia,
+      overagePolicy: 'hard_cap',
+      sandboxOnly: true,
+      productionAccess: false,
+      autoPostingAllowed: false,
+    },
   };
 
   return authorize(locked, capability, opts);

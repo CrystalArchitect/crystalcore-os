@@ -144,3 +144,62 @@ describe('entitlement allow/deny', () => {
     }
   });
 });
+
+describe('social media entitlements', () => {
+  it('Free social publish exhausted → reject', () => {
+    const ent = buildEntitlements({
+      tierId: 'free',
+      accountId: 'acct_free',
+      allowedSocialConnectorIds: ['PLACEHOLDER_x_twitter'],
+      socialIncluded: { publish: 2 },
+      socialUsed: { publish: 2 },
+      overagePolicy: 'hard_cap',
+    });
+    const d = freeTierHardCapGate(ent, 'social.publish', {
+      connectorId: 'PLACEHOLDER_x_twitter',
+      meterUnit: 'publish',
+      meterQuantity: 1,
+      environment: 'sandbox',
+    });
+    assert.equal(d.allow, false);
+    if (!d.allow) assert.equal(d.code, 'social_allowance_exhausted');
+  });
+
+  it('Free production social webhook → reject', () => {
+    const ent = buildEntitlements({
+      tierId: 'free',
+      accountId: 'acct_free',
+      allowedSocialConnectorIds: ['PLACEHOLDER_instagram'],
+    });
+    const d = authorize(ent, 'social.webhook', {
+      connectorId: 'PLACEHOLDER_instagram',
+      environment: 'production',
+    });
+    assert.equal(d.allow, false);
+  });
+
+  it('Paid social publish + webhook → allow', () => {
+    const ent = buildEntitlements({
+      tierId: 'paid',
+      accountId: 'acct_paid',
+      allowedSocialConnectorIds: ['PLACEHOLDER_tiktok', 'PLACEHOLDER_youtube'],
+      socialIncluded: { publish: 100, webhook_delivery: 100 },
+      socialUsed: { publish: 1, webhook_delivery: 0 },
+    });
+    assert.equal(
+      authorize(ent, 'social.publish', {
+        connectorId: 'PLACEHOLDER_tiktok',
+        meterUnit: 'publish',
+        environment: 'production',
+      }).allow,
+      true,
+    );
+    assert.equal(
+      authorize(ent, 'social.webhook', {
+        connectorId: 'PLACEHOLDER_youtube',
+        environment: 'production',
+      }).allow,
+      true,
+    );
+  });
+});
