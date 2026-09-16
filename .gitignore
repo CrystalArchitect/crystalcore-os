@@ -32,5 +32,5 @@ Thumbs.db
 dist/
 coverage/
 *.tsbuildinfo
-api/.data/
+server/.data/
 .data/

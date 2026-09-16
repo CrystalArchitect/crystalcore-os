@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import {
   authorize,
   buildEntitlements,
-} from '../api/entitlements/service.js';
-import { freeTierHardCapGate } from '../api/middleware/freeTierGate.js';
-import { quotaGate } from '../api/middleware/quotaGate.js';
+} from '../server/entitlements/service.js';
+import { freeTierHardCapGate } from '../server/middleware/freeTierGate.js';
+import { quotaGate } from '../server/middleware/quotaGate.js';
 
 describe('entitlement allow/deny', () => {
   it('Free exhausted inference → reject', () => {
@@ -367,7 +367,7 @@ describe('DRAFT 42-tier ladder config', () => {
       listOrderedTiers,
       expectedTierIds,
       isFreeTierId,
-    } = await import('../api/lib/tiers.js');
+    } = await import('../server/lib/tiers.js');
 
     const cfg = loadTiersConfig();
     assert.equal(cfg.draft_pricing.status, 'DRAFT');

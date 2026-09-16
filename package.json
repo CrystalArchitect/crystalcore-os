@@ -5,7 +5,7 @@
   "description": "Scaffold: API tiers, entitlements, usage ledger, and Stripe settlement stubs for CrystalCore.OS",
   "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.json --noEmit",
+    "build": "node -e \"console.log('static-first deploy; run npm run typecheck for API scaffold')\"",
     "test": "node --import tsx --test tests/entitlements.test.ts tests/usageLedger.test.ts tests/stripeWebhook.test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

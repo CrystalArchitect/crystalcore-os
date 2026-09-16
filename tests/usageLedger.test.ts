@@ -4,13 +4,13 @@ import {
   createInMemoryUsageLedger,
   setUsageLedger,
   recordUsage,
-} from '../api/metering/usageLedger.js';
-import { runCreationAction, entitlementsForTier } from '../api/connections/creationPlatforms.js';
-import { runSocialAction, socialEntitlementsForTier } from '../api/connections/socialMedia.js';
-import { runMcpAction, mcpEntitlementsForTier } from '../api/connections/mcpServers.js';
-import { runApiAction, apiEntitlementsForTier } from '../api/connections/apis.js';
-import { runConnectorAction, connectorEntitlementsForTier } from '../api/connections/connectors.js';
-import { runAutomationAction, automationEntitlementsForTier } from '../api/connections/automation.js';
+} from '../server/metering/usageLedger.js';
+import { runCreationAction, entitlementsForTier } from '../server/connections/creationPlatforms.js';
+import { runSocialAction, socialEntitlementsForTier } from '../server/connections/socialMedia.js';
+import { runMcpAction, mcpEntitlementsForTier } from '../server/connections/mcpServers.js';
+import { runApiAction, apiEntitlementsForTier } from '../server/connections/apis.js';
+import { runConnectorAction, connectorEntitlementsForTier } from '../server/connections/connectors.js';
+import { runAutomationAction, automationEntitlementsForTier } from '../server/connections/automation.js';
 
 describe('usage ledger', () => {
   beforeEach(async () => {

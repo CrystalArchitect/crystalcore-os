@@ -1,12 +1,12 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
-import { verifyStripeSignatureStub } from '../api/billing/webhooks.js';
+import { verifyStripeSignatureStub } from '../server/billing/webhooks.js';
 import {
   tripCircuitBreaker,
   resetCircuitBreaker,
   assertCircuitClosed,
-} from '../api/billing/circuitBreaker.js';
+} from '../server/billing/circuitBreaker.js';
 
 describe('stripe webhook signature stub', () => {
   it('rejects missing secret', () => {

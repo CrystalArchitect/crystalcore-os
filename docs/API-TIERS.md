@@ -11,7 +11,7 @@ Public/internal summary of **Free vs Paid**, how **settlement** is intended to w
 
 ## Everything is entitled (universal entitlement)
 
-**Product rule:** any capability that **spends money**, **burns quota**, or **grants access** must go through the **central entitlement service** (`api/entitlements/service.ts`).
+**Product rule:** any capability that **spends money**, **burns quota**, or **grants access** must go through the **central entitlement service** (`server/entitlements/service.ts`).
 
 There are **no bypass paths** for:
 
@@ -51,13 +51,13 @@ Full 42-row table, credit wallet, and “not marketing-live” notice: **[`docs/
 | Category | Registry | What is metered (structure only) |
 |----------|----------|----------------------------------|
 | `inference` | (models list in tier config) | Billable units / tokens |
-| `creation_platforms` | `api/connections/creationPlatforms.ts` | Generations, render minutes, exports, storage, API calls |
-| `social_media` | `api/connections/socialMedia.ts` | OAuth, publish/schedule, media, analytics, inbox, webhooks |
-| `mcp_servers` | `api/connections/mcpServers.ts` | Tool calls, resource reads, prompt gets, sessions |
-| `apis` | `api/connections/apis.ts` | HTTP / GraphQL / gRPC / requests |
-| `connectors` | `api/connections/connectors.ts` | Invoke, sync, webhook delivery, API calls |
-| `developer` | `api/connections/developer.ts` | Keys, environments, webhooks, SDK, seats, retention, rate limits |
-| `automation` | `api/connections/automation.ts` | Scheduled runs, agent runs, workflow runs, retries |
+| `creation_platforms` | `server/connections/creationPlatforms.ts` | Generations, render minutes, exports, storage, API calls |
+| `social_media` | `server/connections/socialMedia.ts` | OAuth, publish/schedule, media, analytics, inbox, webhooks |
+| `mcp_servers` | `server/connections/mcpServers.ts` | Tool calls, resource reads, prompt gets, sessions |
+| `apis` | `server/connections/apis.ts` | HTTP / GraphQL / gRPC / requests |
+| `connectors` | `server/connections/connectors.ts` | Invoke, sync, webhook delivery, API calls |
+| `developer` | `server/connections/developer.ts` | Keys, environments, webhooks, SDK, seats, retention, rate limits |
+| `automation` | `server/connections/automation.ts` | Scheduled runs, agent runs, workflow runs, retries |
 
 ## Creation platforms (developer/provider connectors)
 
@@ -117,19 +117,19 @@ Scheduled jobs, agents, and workflows **cannot** bypass entitlements. Retries ar
 
 | Path | Role |
 |------|------|
-| `api/auth/` | API key issue, hash, revoke |
-| `api/entitlements/` | **One** entitlement service for **all** categories (deny-by-default) |
-| `api/middleware/` | Quota gate, rate limit stub, cost estimate stub, free hard-cap gate |
-| `api/metering/` | Usage ledger interface + in-memory store (kinds per category) |
-| `api/billing/` | Checkout/portal stubs, webhook signature stub, circuit breaker |
-| `api/byok/` | BYOK header resolution stub |
-| `api/connections/creationPlatforms.ts` | Creation-platform registry + run path |
-| `api/connections/socialMedia.ts` | Social media registry + run path |
-| `api/connections/mcpServers.ts` | MCP servers registry + run path |
-| `api/connections/apis.ts` | First/third-party API registry + run path |
-| `api/connections/connectors.ts` | Generic connectors registry + run path |
-| `api/connections/developer.ts` | Developer tooling registry + run path |
-| `api/connections/automation.ts` | Automation registry + run path |
+| `server/auth/` | API key issue, hash, revoke |
+| `server/entitlements/` | **One** entitlement service for **all** categories (deny-by-default) |
+| `server/middleware/` | Quota gate, rate limit stub, cost estimate stub, free hard-cap gate |
+| `server/metering/` | Usage ledger interface + in-memory store (kinds per category) |
+| `server/billing/` | Checkout/portal stubs, webhook signature stub, circuit breaker |
+| `server/byok/` | BYOK header resolution stub |
+| `server/connections/creationPlatforms.ts` | Creation-platform registry + run path |
+| `server/connections/socialMedia.ts` | Social media registry + run path |
+| `server/connections/mcpServers.ts` | MCP servers registry + run path |
+| `server/connections/apis.ts` | First/third-party API registry + run path |
+| `server/connections/connectors.ts` | Generic connectors registry + run path |
+| `server/connections/developer.ts` | Developer tooling registry + run path |
+| `server/connections/automation.ts` | Automation registry + run path |
 | `config/tiers.example.json` | **DRAFT** 42 tiers (`tier_01`…`tier_42`) + defaults/templates + open-ended catalogs |
 | `.env.example` | Env **names** only |
 
