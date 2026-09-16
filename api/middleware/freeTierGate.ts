@@ -1,5 +1,6 @@
 /**
  * Free tier hard-cap gate + circuit breaker hooks.
+ * Enforces hard caps across ALL entitlement categories.
  */
 
 import { assertCircuitClosed } from '../billing/circuitBreaker.js';
@@ -41,6 +42,47 @@ export function freeTierHardCapGate(
       sandboxOnly: true,
       productionAccess: false,
       autoPostingAllowed: false,
+    },
+    mcpServers: {
+      ...entitlements.mcpServers,
+      overagePolicy: 'hard_cap',
+      sandboxOnly: true,
+      productionAccess: false,
+    },
+    apis: {
+      ...entitlements.apis,
+      overagePolicy: 'hard_cap',
+      sandboxOnly: true,
+      productionAccess: false,
+    },
+    connectors: {
+      ...entitlements.connectors,
+      overagePolicy: 'hard_cap',
+      sandboxOnly: true,
+      productionAccess: false,
+    },
+    developer: {
+      ...entitlements.developer,
+      overagePolicy: 'hard_cap',
+      sandboxOnly: true,
+      productionAccess: false,
+      productionKeysAllowed: false,
+      productionPromoteAllowed: false,
+      webhooksAllowed: false,
+    },
+    automation: {
+      ...entitlements.automation,
+      overagePolicy: 'hard_cap',
+      sandboxOnly: true,
+      productionAccess: false,
+      retriesAllowed: false,
+    },
+    connections: {
+      ...entitlements.connections,
+      productionKeysAllowed: false,
+      sandboxOnly: true,
+      webhooksAllowed: false,
+      productionPromoteAllowed: false,
     },
   };
 

@@ -1,26 +1,15 @@
 /**
- * Shared quota / entitlement gate for inference + connectors + creation + social.
+ * Shared quota / entitlement gate for ALL categories:
+ * inference, creation, social, MCP, APIs, connectors, developer, automation.
  */
 
-import { authorize } from '../entitlements/service.js';
-import type {
-  Capability,
-  CreationMeterUnit,
-  Entitlements,
-  GateDecision,
-  SocialMeterUnit,
-} from '../lib/types.js';
+import { authorize, type GateOpts } from '../entitlements/service.js';
+import type { Capability, Entitlements, GateDecision } from '../lib/types.js';
 
 export function quotaGate(
   entitlements: Entitlements,
   capability: Capability,
-  opts?: {
-    connectorId?: string;
-    meterUnit?: CreationMeterUnit | SocialMeterUnit;
-    meterQuantity?: number;
-    model?: string;
-    environment?: 'sandbox' | 'production';
-  },
+  opts?: GateOpts,
 ): GateDecision {
   return authorize(entitlements, capability, opts);
 }

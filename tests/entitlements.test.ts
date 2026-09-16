@@ -143,6 +143,19 @@ describe('entitlement allow/deny', () => {
       assert.equal(d.code, 'account_soft_locked');
     }
   });
+
+  it('unknown capability → deny by default', () => {
+    const ent = buildEntitlements({
+      tierId: 'paid',
+      accountId: 'acct_paid',
+    });
+    const d = authorize(ent, 'totally.unregistered.capability' as never);
+    assert.equal(d.allow, false);
+    if (!d.allow) {
+      assert.equal(d.status, 403);
+      assert.equal(d.code, 'unknown_capability');
+    }
+  });
 });
 
 describe('social media entitlements', () => {
@@ -201,5 +214,147 @@ describe('social media entitlements', () => {
       }).allow,
       true,
     );
+  });
+});
+
+describe('universal categories: MCP / API / connectors', () => {
+  it('Free exhausted MCP tool_call → deny', () => {
+    const ent = buildEntitlements({
+      tierId: 'free',
+      accountId: 'acct_free',
+      allowedMcpConnectorIds: ['PLACEHOLDER_mcp_filesystem'],
+      mcpIncluded: { tool_call: 2 },
+      mcpUsed: { tool_call: 2 },
+      overagePolicy: 'hard_cap',
+    });
+    const d = freeTierHardCapGate(ent, 'mcp.tool_call', {
+      connectorId: 'PLACEHOLDER_mcp_filesystem',
+      meterUnit: 'tool_call',
+      meterQuantity: 1,
+      environment: 'sandbox',
+    });
+    assert.equal(d.allow, false);
+    if (!d.allow) assert.equal(d.code, 'mcp_allowance_exhausted');
+  });
+
+  it('Paid MCP tool_call → allow', () => {
+    const ent = buildEntitlements({
+      tierId: 'paid',
+      accountId: 'acct_paid',
+      allowedMcpConnectorIds: ['PLACEHOLDER_mcp_browser'],
+      mcpIncluded: { tool_call: 100 },
+      mcpUsed: { tool_call: 1 },
+    });
+    const d = authorize(ent, 'mcp.tool_call', {
+      connectorId: 'PLACEHOLDER_mcp_browser',
+      meterUnit: 'tool_call',
+      environment: 'production',
+    });
+    assert.equal(d.allow, true);
+  });
+
+  it('Free exhausted API http_call → deny', () => {
+    const ent = buildEntitlements({
+      tierId: 'free',
+      accountId: 'acct_free',
+      allowedApiConnectorIds: ['PLACEHOLDER_api_third_party_http'],
+      apiIncluded: { http_call: 1 },
+      apiUsed: { http_call: 1 },
+      overagePolicy: 'hard_cap',
+    });
+    const d = freeTierHardCapGate(ent, 'api.http', {
+      connectorId: 'PLACEHOLDER_api_third_party_http',
+      meterUnit: 'http_call',
+      meterQuantity: 1,
+      environment: 'sandbox',
+      apiKind: 'third_party',
+    });
+    assert.equal(d.allow, false);
+    if (!d.allow) assert.equal(d.code, 'api_allowance_exhausted');
+  });
+
+  it('Paid API graphql → allow', () => {
+    const ent = buildEntitlements({
+      tierId: 'paid',
+      accountId: 'acct_paid',
+      allowedApiConnectorIds: ['PLACEHOLDER_api_graphql'],
+      apiIncluded: { graphql_call: 50 },
+      apiUsed: { graphql_call: 0 },
+    });
+    const d = authorize(ent, 'api.graphql', {
+      connectorId: 'PLACEHOLDER_api_graphql',
+      meterUnit: 'graphql_call',
+      environment: 'production',
+      apiKind: 'third_party',
+    });
+    assert.equal(d.allow, true);
+  });
+
+  it('Free exhausted connector invoke → deny', () => {
+    const ent = buildEntitlements({
+      tierId: 'free',
+      accountId: 'acct_free',
+      allowedConnectorIds: ['PLACEHOLDER_connector_crm'],
+      connectorIncluded: { invoke: 3 },
+      connectorUsed: { invoke: 3 },
+      overagePolicy: 'hard_cap',
+    });
+    const d = freeTierHardCapGate(ent, 'connector.invoke', {
+      connectorId: 'PLACEHOLDER_connector_crm',
+      connectorType: 'crm',
+      meterUnit: 'invoke',
+      meterQuantity: 1,
+      environment: 'sandbox',
+    });
+    assert.equal(d.allow, false);
+    if (!d.allow) assert.equal(d.code, 'connector_allowance_exhausted');
+  });
+
+  it('Paid connector sync → allow', () => {
+    const ent = buildEntitlements({
+      tierId: 'paid',
+      accountId: 'acct_paid',
+      allowedConnectorIds: ['PLACEHOLDER_connector_email'],
+      connectorIncluded: { sync: 20 },
+      connectorUsed: { sync: 0 },
+    });
+    const d = authorize(ent, 'connector.sync', {
+      connectorId: 'PLACEHOLDER_connector_email',
+      connectorType: 'email',
+      meterUnit: 'sync',
+      environment: 'production',
+    });
+    assert.equal(d.allow, true);
+  });
+
+  it('Free automation retry → deny', () => {
+    const ent = buildEntitlements({
+      tierId: 'free',
+      accountId: 'acct_free',
+      allowedAutomationConnectorIds: ['PLACEHOLDER_automation_agent'],
+    });
+    const d = authorize(ent, 'automation.retry', {
+      connectorId: 'PLACEHOLDER_automation_agent',
+      meterUnit: 'retry',
+      environment: 'sandbox',
+    });
+    assert.equal(d.allow, false);
+    if (!d.allow) assert.equal(d.code, 'automation_retries_not_allowed');
+  });
+
+  it('Paid automation agent_run → allow', () => {
+    const ent = buildEntitlements({
+      tierId: 'paid',
+      accountId: 'acct_paid',
+      allowedAutomationConnectorIds: ['PLACEHOLDER_automation_agent'],
+      automationIncluded: { agent_run: 10 },
+      automationUsed: { agent_run: 0 },
+    });
+    const d = authorize(ent, 'automation.agent_run', {
+      connectorId: 'PLACEHOLDER_automation_agent',
+      meterUnit: 'agent_run',
+      environment: 'production',
+    });
+    assert.equal(d.allow, true);
   });
 });

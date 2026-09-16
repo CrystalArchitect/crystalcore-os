@@ -5,9 +5,10 @@
  * Records customer charge, provider cost, tax, fees, reserve, margin fields —
  * values remain null until Crystal supplies real cost tables / Stripe prices.
  *
- * Covers inference AND creation-platform meters (generations, render minutes,
- * exports, storage, API calls) for pluggable providers (Suno-class, CapCut-class, etc.).
+ * Covers ALL categories: inference, creation, social, MCP, APIs, generic connectors,
+ * developer tooling, and automation. Event kinds are defined on UsageLedgerEntry.
  */
+
 
 import { randomBytes } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';

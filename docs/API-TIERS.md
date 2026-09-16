@@ -1,12 +1,28 @@
 # CrystalCore.OS — API tiers contract (scaffold)
 
 **Status:** Scaffold / internal contract. Not production billing.  
-**Related plan concepts:** Free vs Paid entitlements, central usage ledger, hybrid Stripe settlement, BYOK, creation platforms as pluggable connectors.  
+**Related plan concepts:** Free vs Paid entitlements, central usage ledger, hybrid Stripe settlement, BYOK, universal entitlement across all connectors/MCPs/APIs/dev tooling.  
 **Hero PR (unrelated):** do not bundle with homepage hero work.
 
 ## What this document is
 
 Public/internal summary of **Free vs Paid**, how **settlement** is intended to work, and a **go-live checklist**. Numeric prices, allowances, RPM, connector limits, and margins are **not** defined here — see `config/tiers.example.json` (`null` / `PLACEHOLDER`) and `config/README.md`.
+
+## Everything is entitled (universal entitlement)
+
+**Product rule:** any capability that **spends money**, **burns quota**, or **grants access** must go through the **central entitlement service** (`api/entitlements/service.ts`).
+
+There are **no bypass paths** for:
+
+- MCP tools / resources / prompts
+- Arbitrary REST / GraphQL / gRPC APIs (first-party or third-party)
+- Webhooks, SDKs, CLIs
+- Third-party connectors (CRM, email, calendar, storage, payments, analytics, …)
+- Creation platforms, social media, inference, automation agents/workflows
+
+**Deny-by-default:** unregistered / unknown capabilities are rejected (`unknown_capability`). New platforms register in a pluggable catalog with a **type + meter units**, then receive Free/Paid entitlements — they do not get free access by omission.
+
+**Open-ended catalog:** unknown future platforms register as **connectors** (or under a registered category such as `mcp_servers` / `apis` / `automation`) with a type + meter units. The category list is intentionally extensible; commercial numbers stay `null`/`PLACEHOLDER` until Crystal fills them.
 
 ## Tiers (structure)
 
@@ -14,12 +30,29 @@ Public/internal summary of **Free vs Paid**, how **settlement** is intended to w
 |---|------|------|
 | Auth | API key (sandbox/dev) | API keys (incl. production) |
 | Inference | Hard-capped allowance; no overages | Higher allowance; overage policy TBD by Crystal |
-| Developer connections | Limited connectors; no prod secrets | More connectors, webhooks, environments |
-| **Creation platforms** | Sandbox/dev access to a **limited** creation-connector set; **hard caps** | **Production** access, more platforms, higher quotas, webhooks/exports |
-| **Social media** | Sandbox/limited accounts; **hard caps**; no uncapped auto-posting | More accounts/platforms; higher post/API quotas; production webhooks; longer retention; team seats |
+| **Developer** | Limited keys/envs; no prod secrets | More keys, webhooks, environments, SDK, seats, retention |
+| **Creation platforms** | Sandbox/dev; **hard caps** | **Production**; higher quotas; webhooks/exports |
+| **Social media** | Sandbox/limited; **hard caps**; no uncapped auto-posting | More accounts/platforms; production webhooks; seats |
+| **MCP servers** | Sandbox MCP tool/resource/prompt caps | Production MCP; higher quotas |
+| **APIs** | Sandbox first/third-party call caps | Production HTTP/GraphQL/gRPC quotas |
+| **Connectors** | Sandbox generic integrations | Production CRM/email/calendar/storage/payments/analytics/… |
+| **Automation** | Hard-capped schedules/agents; no retries (scaffold) | Production agents/workflows; retries allowed |
 | Support | Community | Priority / SLA TBD |
 
 Exact counts, catalogs, and prices: **Crystal fills** before marketing or charging.
+
+## Categories (pluggable registries)
+
+| Category | Registry | What is metered (structure only) |
+|----------|----------|----------------------------------|
+| `inference` | (models list in tier config) | Billable units / tokens |
+| `creation_platforms` | `api/connections/creationPlatforms.ts` | Generations, render minutes, exports, storage, API calls |
+| `social_media` | `api/connections/socialMedia.ts` | OAuth, publish/schedule, media, analytics, inbox, webhooks |
+| `mcp_servers` | `api/connections/mcpServers.ts` | Tool calls, resource reads, prompt gets, sessions |
+| `apis` | `api/connections/apis.ts` | HTTP / GraphQL / gRPC / requests |
+| `connectors` | `api/connections/connectors.ts` | Invoke, sync, webhook delivery, API calls |
+| `developer` | `api/connections/developer.ts` | Keys, environments, webhooks, SDK, seats, retention, rate limits |
+| `automation` | `api/connections/automation.ts` | Scheduled runs, agent runs, workflow runs, retries |
 
 ## Creation platforms (developer/provider connectors)
 
@@ -34,94 +67,65 @@ Creation platforms are **first-class connectors** under the **same** Free/Paid e
 - Voice / TTS
 - Future providers Crystal adds to the catalog
 
-**Free**
-
-- Sandbox / dev access only
-- Limited allowed connector set (IDs TBD)
-- Hard caps on generations, render minutes, exports, storage, API calls
-- No production exports/webhooks on this scaffold’s defaults
-
-**Paid**
-
-- Production access
-- Broader catalog + higher quotas
-- Webhooks and exports enabled (limits TBD)
-
-**Metering (usage ledger)**
-
-Ledger events may record, per platform:
-
-- Generations
-- Minutes rendered
-- Exports
-- Storage
-- API calls
-
-Fields include customer charge, provider cost estimate, tax, Stripe fees, reserve, and platform margin — **values null until Crystal supplies cost tables**.
-
+**Free:** sandbox/dev; limited catalog; hard caps; no production exports/webhooks on scaffold defaults.  
+**Paid:** production; broader catalog; webhooks/exports (limits TBD).
 
 ## Social media (developer/provider connectors)
 
 Social networks are a pluggable connector category **`social_media`** under the **same** Free/Paid entitlements, usage ledger, and Stripe settlement model.
 
-**Class (extensible catalog — not hardcoded to a fixed short list):**
+**Class (extensible):** X/Twitter, Instagram, TikTok, YouTube, Facebook/Meta, LinkedIn, Threads, Bluesky, Discord, Telegram, and future platforms.
 
-- X / Twitter, Instagram, TikTok, YouTube, Facebook / Meta, LinkedIn, Threads, Bluesky, Discord, Telegram
-- Future platforms Crystal adds to `social_media_catalog`
+**Free:** sandbox/limited; hard caps; **no uncapped auto-posting**.  
+**Paid:** more accounts/platforms; production webhooks; retention; team seats (counts TBD).
 
-**Capabilities to entitle / meter (structure only — quotas/prices TBD):**
+## MCP servers
 
-- OAuth connect / account linking
-- Publish / schedule posts
-- Media upload
-- Analytics / insights pulls
-- Inbox / comments / DMs (where the network supports it)
-- Webhooks for engagement events
-- Multi-account / multi-brand seats
+Every MCP **tool / resource / prompt** invocation is entitled. Free hard-caps tool calls; Paid unlocks production. Future MCP servers register in `mcp_servers_catalog` with meter units — they do not bypass the gate.
 
-**Free**
+## APIs (first-party + third-party)
 
-- Sandbox or limited linked accounts
-- Hard caps on publishes, schedules, uploads, API calls, etc.
-- **No uncapped auto-posting** that burns platform or provider cost
+HTTP, GraphQL, and gRPC calls — whether CrystalCore first-party or third-party — burn API entitlements. SDKs and CLIs that call these APIs are covered by the same gate (plus `developer` meters for SDK usage itself).
 
-**Paid**
+## Generic connectors
 
-- More accounts and platforms
-- Higher post / API quotas
-- Production engagement webhooks
-- Longer log / analytics retention
-- Team seats (counts TBD)
+CRM, email, calendar, storage, payments, analytics, and **other** types live under `connectors`. The catalog is **open-ended**: a new SaaS registers with `connector_type` + meter units and receives Free/Paid entitlements. No silent free access.
 
-**Credentials**
+## Developer tooling
 
-- **Platform-managed OAuth apps** (Crystal’s developer apps) and/or
-- **BYOK / bring-your-own-app-credentials** (customer’s client id/secret) — customer bears that network’s app limits; Crystal charges a platform fee via Stripe
+API keys, environments, webhooks, SDK usage, team seats, log retention, and rate limits are entitled under `developer` (mirrored with `connections` for key/webhook/promote gates). Free = sandbox keys only; Paid = production promote + webhooks.
 
-**Settlement:** Stripe does **not** pay Meta, TikTok, X, or other social networks directly unless a documented Stripe Connect relationship exists (not assumed).
+## Automation
+
+Scheduled jobs, agents, and workflows **cannot** bypass entitlements. Retries are Paid-only on this scaffold’s defaults. Agent runs that invoke MCP/API/connectors still pay each underlying category’s meters as well.
 
 ## Settlement hybrid (do not misstate)
 
 1. **Stripe** = customer billing (Checkout, Customer Portal, subscriptions, metered invoices, webhooks).
 2. Stripe collects into the **platform** Stripe balance / bank settlement.
-3. Stripe does **not**, by itself, pay OpenAI, Anthropic, **Suno, CapCut**, **Meta, TikTok, X**, or other creation/social platforms — unless a provider **explicitly** participates in a documented **Stripe Connect** (or similar) arrangement. **None is assumed.**
-4. **Platform-managed keys / OAuth apps:** Crystal’s provider accounts (and social developer apps) are billed or rate-limited separately; maintain reserves; circuit-break on unsafe balance or customer payment failure.
-5. **BYOK / bring-your-own-app-credentials:** Customer brings their own Suno / CapCut / model / social app credentials; customer pays or operates under that provider’s terms; Crystal charges a **platform fee** via Stripe (removes Crystal’s provider-credit exposure for that path).
-6. **Stripe Connect** (if ever used): marketplace payouts to participating third-party developers/vendors on the platform — **not** a generic way to pay arbitrary AI/creation provider bills.
+3. Stripe does **not**, by itself, pay OpenAI, Anthropic, **Suno, CapCut**, **Meta, TikTok, X**, MCP hosts, third-party APIs, or other connector vendors — unless a provider **explicitly** participates in a documented **Stripe Connect** (or similar) arrangement. **None is assumed.**
+4. **Platform-managed keys / OAuth apps:** Crystal’s provider accounts are billed or rate-limited separately; maintain reserves; circuit-break on unsafe balance or customer payment failure.
+5. **BYOK / bring-your-own-app-credentials:** Customer brings credentials; customer pays or operates under that provider’s terms; Crystal charges a **platform fee** via Stripe.
+6. **Stripe Connect** (if ever used): marketplace payouts to participating third-party developers/vendors — **not** a generic way to pay arbitrary provider bills.
 
 ## Scaffold surface (this PR)
 
 | Path | Role |
 |------|------|
 | `api/auth/` | API key issue, hash, revoke |
-| `api/entitlements/` | One entitlement service (inference + connections + creation) |
+| `api/entitlements/` | **One** entitlement service for **all** categories (deny-by-default) |
 | `api/middleware/` | Quota gate, rate limit stub, cost estimate stub, free hard-cap gate |
-| `api/metering/` | Usage ledger interface + in-memory store |
+| `api/metering/` | Usage ledger interface + in-memory store (kinds per category) |
 | `api/billing/` | Checkout/portal stubs, webhook signature stub, circuit breaker |
 | `api/byok/` | BYOK header resolution stub |
-| `api/connections/creationPlatforms.ts` | Pluggable creation-platform registry + run path |
-| `api/connections/socialMedia.ts` | Pluggable social_media registry + run path |
-| `config/tiers.example.json` | Free/Paid + `creation_platforms` + `social_media` PLACEHOLDERs |
+| `api/connections/creationPlatforms.ts` | Creation-platform registry + run path |
+| `api/connections/socialMedia.ts` | Social media registry + run path |
+| `api/connections/mcpServers.ts` | MCP servers registry + run path |
+| `api/connections/apis.ts` | First/third-party API registry + run path |
+| `api/connections/connectors.ts` | Generic connectors registry + run path |
+| `api/connections/developer.ts` | Developer tooling registry + run path |
+| `api/connections/automation.ts` | Automation registry + run path |
+| `config/tiers.example.json` | Free/Paid + all categories PLACEHOLDERs + open-ended catalogs |
 | `.env.example` | Env **names** only |
 
 Static site (`index.html`, `styles.css`, `app.js`) remains unchanged and deployable.
@@ -129,17 +133,17 @@ Static site (`index.html`, `styles.css`, `app.js`) remains unchanged and deploya
 ## Go-live checklist (Crystal)
 
 - [ ] Answer plan §9 decisions (tiers, metering unit, settlement, tax, BYOK).
-- [ ] Provider / creation-platform **contracts** + real **cost tables**.
+- [ ] Provider / connector / MCP / API **contracts** + real **cost tables**.
 - [ ] Fill `tiers.example.json` → private config (no invented marketing numbers in-repo).
 - [ ] Create Stripe Products/Prices; set `STRIPE_PRICE_*`, webhook secret.
 - [ ] Provision `DATABASE_URL` and replace in-memory ledger.
-- [ ] Confirm auto-pay / invoice options per provider (AI + creation).
+- [ ] Confirm auto-pay / invoice options per provider category.
 - [ ] Wire real Stripe SDK + signature verification (`constructEvent`).
 - [ ] Staging: Free hard caps + circuit breaker; shadow reconciliation.
 - [ ] Paid live only after reconciliation trusted and margin floor configured.
-- [ ] Optional BYOK for creation platforms and model providers.
+- [ ] Optional BYOK across categories.
 - [ ] Marketing/pricing UI in a **separate** front-end PR — after checkout URLs and approved numbers exist.
 
 ## What is explicitly TBD
 
-All dollar amounts, included units, RPM/TPM, connector counts, creation quotas, social post/account quotas, margin %, Stripe Price IDs, tax/GST treatment, legal entity/currency details, and which specific Suno/CapCut/social network products are Free-eligible.
+All dollar amounts, included units, RPM/TPM, connector counts, creation/social/MCP/API/automation quotas, margin %, Stripe Price IDs, tax/GST treatment, legal entity/currency details, and which specific catalog IDs are Free-eligible.
