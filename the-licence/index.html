@@ -22,8 +22,8 @@
   }
   a { color:var(--cyan); }
   .wrap { max-width:42rem; margin:0 auto; padding:2.5rem 1.25rem 4rem; }
-  .top { font-size:.85rem; opacity:.75; margin-bottom:1.5rem; }
-  .top a { color:var(--ice-hi); text-decoration:none; }
+  .top { font-size:.85rem; opacity:.85; margin-bottom:1.5rem; display:flex; flex-wrap:wrap; gap:.5rem 1rem; }
+  .top a { color:var(--ice-hi); text-decoration:none; border-bottom:1px solid rgb(60 220 229 / .35); }
   .eyebrow { text-transform:uppercase; letter-spacing:.08em; font-size:.75rem; color:var(--cyan); margin-bottom:.5rem; }
   h1 { color:var(--ice-hi); font-size:clamp(1.8rem,4vw,2.4rem); margin:.2rem 0 1rem; font-weight:650; }
   h2 { color:var(--ice-hi); font-size:1.15rem; margin:0 0 .75rem; }
@@ -39,7 +39,13 @@
 </head>
 <body>
   <div class="wrap">
-    <p class="top"><a href="https://www.teraustralis.com.au/">← CrystalCore.OS</a> · <a href="https://teraustralis.com.au/">TerAustralis</a></p>
+    <nav class="top" aria-label="Built desk">
+      <a href="https://www.teraustralis.com.au/">CrystalCore.OS</a>
+      <a href="/built/">Built desk</a>
+      <a href="/the-licence">The licence</a>
+      <a href="/wavelength">Wavelength</a>
+      <a href="https://teraustralis.com.au/">Sand briefs</a>
+    </nav>
     <article class="page node" style="--node:var(--green)">
   <div class="eyebrow">Ground · regulatory join</div>
   <h1>The licence</h1>
