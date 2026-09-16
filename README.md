@@ -47,3 +47,20 @@ npm run typecheck
 ```
 
 Prices/limits are PLACEHOLDER/null — Crystal must fill before go-live. Do not merge until reviewed. Static site files above are unchanged.
+
+## Built pages
+
+Static Built claim pages (folder/`index.html`, `cleanUrls`):
+
+| Route | Page |
+|-------|------|
+| `/built/` | Built desk hub |
+| `/the-licence` | The licence |
+| `/wavelength` | Wavelength |
+| `/codex` | Codex Æ Crystallum |
+| `/starfleet` | STARFLEET AUSTRALIA |
+| `/floating-habitat` | PoC E floating-habitat lab |
+| `/capture` | Capture method (public) |
+
+Built claims, not Vision. Capture is method-only.
+
