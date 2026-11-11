@@ -1,3 +1,7 @@
+/*
+Copyright (c) 2026 Crystal E Arena-Turner (TerAustralis Incognita, ABN 70 741 068 059).
+All rights reserved, except as set out in the copyright owner's licence.
+*/
 /**
  * Automation: scheduled jobs, agents/workflows, retries.
  * All automation spend/quota is entitled — agents cannot bypass the gate.
