@@ -1,3 +1,7 @@
+/*
+Copyright (c) 2026 Crystal E Arena-Turner (TerAustralis Incognita, ABN 70 741 068 059).
+All rights reserved, except as set out in the copyright owner's licence.
+*/
 /**
  * First-party + third-party HTTP / GraphQL / gRPC API catalog.
  * Every call burns quota / access through central entitlements — no bypass.
